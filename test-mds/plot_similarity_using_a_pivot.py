@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.stats import cosine
 
-from andreea_test.compare_locations import compare_locations
+from compare_locations import compare_locations
 
 def real_distantce(c1, c2):
     return math.sqrt(math.pow(c2[0] - c1[0], 2) + math.pow(c2[1] - c1[1], 2))

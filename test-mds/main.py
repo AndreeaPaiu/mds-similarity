@@ -1,13 +1,13 @@
 import sys
 
-from andreea_test.plot_mds import plot_mds
+from plot_mds import plot_mds
 from plot_similarity_to_nearby_point import plot_similarity_to_nearby_point
 from compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points import \
     compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points
 from plot_similarity_between_points import plot_similarity_between_points
 from compute_similarities_using_neighbors import compute_similarities_using_neighbors
 from plot_dis_similarity_with_percentage_non_common_aps import *
-from andreea_test.compare_locations import *
+from compare_locations import *
 from preprocessing_file import *
 from plot_real_cartesian_system import *
 from plot_similarity_using_a_pivot import *

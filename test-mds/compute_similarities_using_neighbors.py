@@ -3,7 +3,7 @@ from datetime import datetime
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine, braycurtis
 
-from andreea_test.compare_locations import compare_locations
+from compare_locations import compare_locations
 
 
 def compute_similarities_using_neighbors(etaj_data):

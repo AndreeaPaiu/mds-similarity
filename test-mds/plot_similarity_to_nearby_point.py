@@ -4,8 +4,7 @@ import seaborn
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import braycurtis, euclidean
 
-from andreea_test.compare_locations import compare_locations
-from study.utils import diff_modulo
+from compare_locations import compare_locations
 import scipy.stats as ss
 import seaborn as sns
 

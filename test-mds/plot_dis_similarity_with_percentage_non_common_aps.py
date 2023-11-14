@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import braycurtis
 
-from andreea_test.compare_locations import compare_locations
+from compare_locations import compare_locations
 
 
 def plot_dis_similarity_with_percentage_non_common_aps(c1, c2, dif=True, simil_method=braycurtis):

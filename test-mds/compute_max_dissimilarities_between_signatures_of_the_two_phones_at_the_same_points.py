@@ -1,6 +1,6 @@
 import numpy as np
 
-from andreea_test.compare_locations import compare_locations
+from compare_locations import compare_locations
 
 
 def compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points(phone_data_1, phone_data_2):

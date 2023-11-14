@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.manifold import MDS
 
-from andreea_test.compare_locations import compare_locations
+from compare_locations import compare_locations
 
 
 def plot_mds(collections):
