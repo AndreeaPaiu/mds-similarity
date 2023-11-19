@@ -18,6 +18,14 @@ def plot_mds(collections):
 
             similarities[i][j] = compare_locations(collections[i], collections[j])
 
+    count_one = 0
+    for i in similarities:
+        for j in i:
+            if j == 1:
+                count_one +=1
+
+    print(f"similaritati de 1: {count_one}")
+    exit()
     # Crearea unui obiect MDS cu 2 dimensiuni
     mds = MDS(n_components=2, dissimilarity='precomputed')
 
@@ -26,7 +34,10 @@ def plot_mds(collections):
 
     # Vizualizarea rezultatelor
     fig = plt.figure()
-    plt.axis('equal')
+    # plt.axis('equal')
+    plt.axis([-1, 1, -1, 1])
+    # ax = fig.gca()
+    # ax.set_autoscale_on(False)
     plt.scatter(coordinates[:, 0], coordinates[:, 1])
     for i, (x, y) in enumerate(coordinates):
         plt.plot(x, y)

@@ -12,12 +12,8 @@ def compare_locations(c1, c2, simil_method = braycurtis,  selection = 'Average',
     if not common_aps:
         return 1.0
 
-    if len(common_aps) * 3 <= len(wifi1.keys()) or len(common_aps) < 3:
+    if len(common_aps) <= min(len(wifi1.keys()), len(wifi2.keys())) / 4:
         return 1.0
-
-    # numarul de ap diferite
-    aps1 = set(wifi1.keys()) - set(common_aps)
-    aps2 = set(wifi2.keys()) - set(common_aps)
 
     rssi1 = []
     rssi2 = []
@@ -30,5 +26,5 @@ def compare_locations(c1, c2, simil_method = braycurtis,  selection = 'Average',
     if return_type == 'rssi':
         return rssi1, rssi2
 
-    return braycurtis(rssi1, rssi2)
+    return simil_method(rssi1, rssi2)
 

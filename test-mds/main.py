@@ -15,24 +15,26 @@ from plot_similarity_using_a_pivot import *
 absolut_path = ""
 
 if __name__ == '__main__':
-    # set global variables
+
     absolut_path = sys.argv[1]
-    file_name = sys.argv[2]
+    files_names = sys.argv[2:]
 
-    preprocessing_file_data = preprocessing_required_data(absolut_path, file_name)
+    # get all files
+    preprocessing_files_data = []
+    merged_data = []
+    for file_name in files_names:
+        file_data = preprocessing_required_data(absolut_path, file_name)
+        preprocessing_files_data.append(file_data)
+        merged_data += file_data
 
-    # print(compare_locations(preprocessing_file_data[0], preprocessing_file_data[1]))
-    # plot_real_cartesian_system(preprocessing_file_data)
-    # plot_dis_similarity_with_percentage_non_common_aps(preprocessing_file_data[0], preprocessing_file_data[1])
-    # plot_similarity_using_a_pivot(preprocessing_file_data)
 
-    # bd = compute_similarities_using_neighbors(preprocessing_file_data)
+    # plot_real_cartesian_system(preprocessing_files_data[0])
+    # plot_dis_similarity_with_percentage_non_common_aps(preprocessing_files_data[0][0], preprocessing_files_data[0][1])
+    # plot_similarity_using_a_pivot(merged_data)
+
+    # bd = compute_similarities_using_neighbors(preprocessing_files_data[0] + preprocessing_files_data[1])
     # plot_similarity_between_points([[r[2], r[3]] for r in bd])
 
-    file_name_2 = sys.argv[3]
-    # preprocessing_file_data_1 = preprocessing_file_data
-    preprocessing_file_data_2 = preprocessing_required_data(absolut_path, file_name_2)
     # compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points(preprocessing_file_data_1, preprocessing_file_data_2)
     # plot_similarity_to_nearby_point(preprocessing_file_data_1, preprocessing_file_data_2)
-
-    plot_mds(preprocessing_file_data_2)
+    plot_mds(preprocessing_files_data[0] + preprocessing_files_data[1])
