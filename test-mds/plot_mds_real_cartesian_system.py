@@ -1,45 +1,29 @@
+import math
+
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.stats._mstats_basic import pearsonr
 from sklearn.manifold import MDS
 import matplotlib.patches as mpatches
-from sklearn.metrics.pairwise import cosine_similarity
-
-from compare_locations import compare_locations
 
 
-def plot_mds(collections):
+
+def plot_mds_real_cartesian_system(collections):
     # Matricea de similarități între produse
     similarities = np.empty((len(collections), len(collections)))
 
     for i in range(len(collections)):
         for j in range(len(collections)):
-            if 'wifi' not in collections[i] or 'wifi' not in collections[j]:
-                similarities[i][j] = 1
+            if 'real_coordinates' not in collections[i] or 'real_coordinates' not in collections[j]:
+                similarities[i][j] = 100
                 continue
 
-            similarities[i][j] = compare_locations(collections[i], collections[j])
-            try:
-                c = compare_locations(collections[i], collections[j], pearsonr)
-                if isinstance(c, float):
-                    similarities[i][j] = 1
-                else:
-                    similarities[i][j] = 1 - c[0]
-            except:
-                print(collections[i])
-                print(collections[j])
-                exit()
+            # a floor
+            similarities[i][j] = math.dist(collections[i]['real_coordinates'][0:2], collections[j]['real_coordinates'][0:2])
 
-    # print(similarities)
-    count_one = 0
-    for i in similarities:
-        for j in i:
-            if j == 1:
-                count_one +=1
+            # all floors
+            # similarities[i][j] = math.dist(collections[i]['real_coordinates'][0:3], collections[j]['real_coordinates'][0:3])
 
-    print(f"similaritati de 1: {count_one}")
-    # exit()
     # Crearea unui obiect MDS cu 2 dimensiuni
     mds = MDS(n_components=2, dissimilarity='precomputed')
 
@@ -49,9 +33,6 @@ def plot_mds(collections):
     # Vizualizarea rezultatelor
     fig = plt.figure()
     plt.axis('equal')
-    # plt.axis([-1, 1, -1, 1])
-    # ax = fig.gca()
-    # ax.set_autoscale_on(False)
 
     colors = []
     for color in matplotlib.colors.TABLEAU_COLORS:
@@ -73,4 +54,6 @@ def plot_mds(collections):
     plt.legend(handles=handles)
     plt.grid()
     plt.show()
-    fig.savefig(f"plot_mds.svg", bbox_inches='tight')
+    fig.savefig(f"images/mds-cartesian_system.svg", bbox_inches='tight')
+    # fig.savefig(f"images/mds-cartesian_system-all-floor.svg", bbox_inches='tight')
+

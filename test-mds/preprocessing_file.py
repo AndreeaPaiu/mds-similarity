@@ -83,6 +83,7 @@ def get_wifi_rssi(absolut_path, data_file):
                     result[collection_key][mac] = {'rssi': 0}
 
                 result[collection_key][mac]['rssi'] = adjust_rssi(avg_pow)[0]
+                # result[collection_key][mac]['rssi'] = avg_pow
 
                 if result[collection_key][mac]['rssi'] == 0:
                     print(collection_key)
@@ -90,7 +91,7 @@ def get_wifi_rssi(absolut_path, data_file):
 
     return result
 
-def preprocessing_required_data(absolut_path, file_name):
+def preprocessing_required_data(absolut_path, file_name, floor):
     # get file data
     file_data = read_json_file(absolut_path, file_name)
 
@@ -115,6 +116,7 @@ def preprocessing_required_data(absolut_path, file_name):
     result_array = []
     for key in result:
         if result[key] != {}:
+            result[key]['floor'] = floor
             result_array.append(result[key])
 
     return result_array

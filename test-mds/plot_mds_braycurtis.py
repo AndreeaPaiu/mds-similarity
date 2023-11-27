@@ -1,15 +1,12 @@
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
-from scipy.stats._mstats_basic import pearsonr
 from sklearn.manifold import MDS
 import matplotlib.patches as mpatches
-from sklearn.metrics.pairwise import cosine_similarity
-
 from compare_locations import compare_locations
 
 
-def plot_mds(collections):
+def plot_mds_braycurtis(collections):
     # Matricea de similarități între produse
     similarities = np.empty((len(collections), len(collections)))
 
@@ -20,26 +17,7 @@ def plot_mds(collections):
                 continue
 
             similarities[i][j] = compare_locations(collections[i], collections[j])
-            try:
-                c = compare_locations(collections[i], collections[j], pearsonr)
-                if isinstance(c, float):
-                    similarities[i][j] = 1
-                else:
-                    similarities[i][j] = 1 - c[0]
-            except:
-                print(collections[i])
-                print(collections[j])
-                exit()
 
-    # print(similarities)
-    count_one = 0
-    for i in similarities:
-        for j in i:
-            if j == 1:
-                count_one +=1
-
-    print(f"similaritati de 1: {count_one}")
-    # exit()
     # Crearea unui obiect MDS cu 2 dimensiuni
     mds = MDS(n_components=2, dissimilarity='precomputed')
 
@@ -49,9 +27,6 @@ def plot_mds(collections):
     # Vizualizarea rezultatelor
     fig = plt.figure()
     plt.axis('equal')
-    # plt.axis([-1, 1, -1, 1])
-    # ax = fig.gca()
-    # ax.set_autoscale_on(False)
 
     colors = []
     for color in matplotlib.colors.TABLEAU_COLORS:
@@ -73,4 +48,5 @@ def plot_mds(collections):
     plt.legend(handles=handles)
     plt.grid()
     plt.show()
-    fig.savefig(f"plot_mds.svg", bbox_inches='tight')
+    fig.savefig(f"images/mds_braycurtis.svg", bbox_inches='tight')
+    # fig.savefig(f"images/mds_braycurtis_all_floors.svg", bbox_inches='tight')
