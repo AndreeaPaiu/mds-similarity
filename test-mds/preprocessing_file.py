@@ -63,6 +63,7 @@ def get_real_cartesian_coordinates(data_file):
 
 def get_wifi_rssi(absolut_path, data_file):
     result = {}
+    aps = []
     for collection_key in data_file:
         collection = data_file[collection_key]
         if 'fingerprints' not in collection:
@@ -74,6 +75,8 @@ def get_wifi_rssi(absolut_path, data_file):
                 continue
 
             for mac in fingerprint['wifi']:
+                if mac not in aps:
+                    aps.append(mac)
                 if 'rssi' not in fingerprint['wifi'][mac]:
                     continue
 
@@ -86,10 +89,9 @@ def get_wifi_rssi(absolut_path, data_file):
                 # result[collection_key][mac]['rssi'] = avg_pow
 
                 if result[collection_key][mac]['rssi'] == 0:
-                    print(collection_key)
                     result.pop(collection_key)
 
-    return result
+    return result, aps
 
 def preprocessing_required_data(absolut_path, file_name, floor):
     # get file data
@@ -101,7 +103,7 @@ def preprocessing_required_data(absolut_path, file_name, floor):
     real_cartesian_coordinates = get_real_cartesian_coordinates(file_data)
 
     # get wifi rssi
-    wifi_rssi = get_wifi_rssi(absolut_path, file_data)
+    wifi_rssi, aps = get_wifi_rssi(absolut_path, file_data)
 
     for collection_key in file_data:
         if collection_key not in result:
@@ -119,4 +121,4 @@ def preprocessing_required_data(absolut_path, file_name, floor):
             result[key]['floor'] = floor
             result_array.append(result[key])
 
-    return result_array
+    return result_array, aps

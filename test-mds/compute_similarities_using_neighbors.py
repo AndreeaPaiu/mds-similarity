@@ -2,11 +2,12 @@ from datetime import datetime
 
 import numpy as np
 from scipy.spatial.distance import euclidean, cosine, braycurtis
+from scipy.stats._mstats_basic import pearsonr
 
 from compare_locations import compare_locations
 
 
-def compute_similarities_using_neighbors(etaj_data):
+def compute_similarities_using_neighbors(etaj_data, aps=[], selection='All', simil_method=braycurtis):
     before = datetime.now()
     # TP = punct in limite
     # FP = punct cu disimilaritate in limte dar prea departe
@@ -24,8 +25,7 @@ def compute_similarities_using_neighbors(etaj_data):
                 eu_dist = euclidean([etaj_data[q]['real_coordinates'][0], etaj_data[q]['real_coordinates'][1], etaj_data[q]['real_coordinates'][2]],
                                     [etaj_data[p]['real_coordinates'][0], etaj_data[p]['real_coordinates'][1], etaj_data[p]['real_coordinates'][2]])
 
-                bc = compare_locations(etaj_data[q], etaj_data[p], selection='Average', dif=True, simil_method=braycurtis)
-                # cor = compare_locations(etaj_data[q], etaj_data[p], selection='Average', dif=True, simil_method=cosine)
+                bc = compare_locations(etaj_data[q], etaj_data[p], selection=selection, dif=True, simil_method=simil_method)
 
                 if bc < thr:
                     if eu_dist < R:

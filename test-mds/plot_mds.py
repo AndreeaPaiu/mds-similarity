@@ -1,47 +1,41 @@
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.spatial.distance import braycurtis, cosine, correlation, yule
 from scipy.stats._mstats_basic import pearsonr
 from sklearn.manifold import MDS
 import matplotlib.patches as mpatches
-from sklearn.metrics.pairwise import cosine_similarity
 
 from compare_locations import compare_locations
+from compute_mds_wifi_similarity import *
+from compute_mds_cartesian import *
+from pearsonr_similarity import *
 
 
-def plot_mds(collections):
+def plot_mds(collections, simil_method=braycurtis, aps=[], n_dim=2, xlabel='Dimensiunea1', ylabel='Dimensiunea2',
+             zlabel='Dimnesiunea3', title='', file_name='images/plot.svg', selection='All', add_label=False, check_one=False, plot_slope=False, print_angle=False, type_data='wifi'):
+    colors = []
+    for color in matplotlib.colors.TABLEAU_COLORS:
+        colors.append(color)
+
     # Matricea de similarități între produse
-    similarities = np.empty((len(collections), len(collections)))
+    if type_data == 'wifi':
+        similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection, aps)
 
-    for i in range(len(collections)):
-        for j in range(len(collections)):
-            if 'wifi' not in collections[i] or 'wifi' not in collections[j]:
-                similarities[i][j] = 1
-                continue
+    if type_data == 'cartesian':
+        similarities, count_floors = compute_mds_cartesian(collections, n_dim)
 
-            similarities[i][j] = compare_locations(collections[i], collections[j])
-            try:
-                c = compare_locations(collections[i], collections[j], pearsonr)
-                if isinstance(c, float):
-                    similarities[i][j] = 1
-                else:
-                    similarities[i][j] = 1 - c[0]
-            except:
-                print(collections[i])
-                print(collections[j])
-                exit()
+    if check_one:
+        count_one = 0
+        for i in similarities:
+            for j in i:
+                if j == 1:
+                    count_one += 1
 
-    # print(similarities)
-    count_one = 0
-    for i in similarities:
-        for j in i:
-            if j == 1:
-                count_one +=1
+        print(f"similaritati de 1: {count_one}")
 
-    print(f"similaritati de 1: {count_one}")
-    # exit()
-    # Crearea unui obiect MDS cu 2 dimensiuni
-    mds = MDS(n_components=2, dissimilarity='precomputed')
+    # Crearea unui obiect MDS cu n dimensiuni
+    mds = MDS(n_components=n_dim, dissimilarity='precomputed')
 
     # Aplicarea MDS pe matricea de similarități
     coordinates = mds.fit_transform(similarities)
@@ -49,23 +43,97 @@ def plot_mds(collections):
     # Vizualizarea rezultatelor
     fig = plt.figure()
     plt.axis('equal')
+    if n_dim == 3:
+        ax = fig.add_subplot(111, projection='3d')
+
     # plt.axis([-1, 1, -1, 1])
     # ax = fig.gca()
     # ax.set_autoscale_on(False)
 
-    colors = []
-    for color in matplotlib.colors.TABLEAU_COLORS:
-        colors.append(color)
+    if plot_slope:
+        if n_dim != 3:
+            print("panta si unghiurile se afiseaza doar pentru 3D ")
+        else:
+            x = {}
+            y = {}
+            z = {}
+            floors = []
+            # Aplicarea MDS pe matricea de similarități
+            coordinates = mds.fit_transform(similarities)
+            for r in range(len(coordinates)):
+                if int(collections[r]['floor']) not in x:
+                    floors.append(int(collections[r]['floor']))
+                    x[int(collections[r]['floor'])] = []
+                if int(collections[r]['floor']) not in y:
+                    y[int(collections[r]['floor'])] = []
+                if int(collections[r]['floor']) not in z:
+                    z[int(collections[r]['floor'])] = []
 
-    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
+                x[int(collections[r]['floor'])].append(coordinates[r][0])
+                y[int(collections[r]['floor'])].append(coordinates[r][1])
+                z[int(collections[r]['floor'])].append(coordinates[r][2])
 
-    plt.scatter(coordinates[:, 0], coordinates[:, 1])
-    for i, (x, y) in enumerate(coordinates):
-        plt.plot(x, y, colors[int(collections[i]['floor'])] + 'o')
+            lines = {}
+            # Perform linear regression to fit a line to the points
+            for i in floors:
+                A = []
+                A = np.column_stack((x[i], y[i], np.ones_like(x[i])))
+                result = np.linalg.lstsq(A, z[i], rcond=None)
+                lines[i] = result[0]
+                print(f"Slope = {lines[i][:2]}, Intercept = {lines[i][2]}")
+                # Generate points for the line of best fit
+                x_line, y_line, z_line = [], [], []
+                x_line = np.linspace(min(x[i]), max(x[i]), 100)
+                y_line = np.linspace(min(y[i]), max(y[i]), 100)
+                x_line, y_line = np.meshgrid(x_line, y_line)
+                z_line = lines[i][0] * x_line + lines[i][1] * y_line + lines[i][2]
+                # Plot the line of best fit in 3D
+                ax.plot_surface(x_line, y_line, z_line, alpha=0.2)
 
-    plt.xlabel('Dimensiune 1')
-    plt.ylabel('Dimensiune 2')
-    plt.title('Reprezentarea similarității între produse folosind MDS')
+            if print_angle:
+                for i in range(len(lines) - 1):
+                    # Vectorii direcționali pentru fiecare dreaptă
+                    v1 = np.array([lines[i][0], lines[i][1], 1])  # Vectorul direcțional pentru prima dreaptă
+                    v2 = np.array([lines[i + 1][0], lines[i + 1][1], 1])  # Vectorul direcțional pentru a doua dreaptă
+
+                    # Calculul produsului scalar între vectorii direcționali
+                    dot_product = np.dot(v1, v2)
+
+                    # Calculul normelor vectorilor
+                    norm_v1 = np.linalg.norm(v1)
+                    norm_v2 = np.linalg.norm(v2)
+
+                    # Calculul cosinusului unghiului între vectorii direcționali
+                    cosine_angle = dot_product / (norm_v1 * norm_v2)
+
+                    # Calculul unghiului în grade
+                    angle = np.arccos(cosine_angle) * 180 / np.pi
+
+                    print(f'Unghiul între cele două dreptele {i} si {i + 1} este: {angle} grade')
+
+    if n_dim == 2:
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        for i, (x, y) in enumerate(coordinates):
+            plt.scatter(x, y, color=colors[int(collections[i]['floor'])], label=f'Line {i + 1}')
+
+        if add_label:
+            for i, (x, y) in enumerate(coordinates):
+                plt.text(x + .03, y + .03, i, fontsize=9)
+
+    if n_dim == 3:
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_zlabel(zlabel)
+
+        for i, (x, y, z) in enumerate(coordinates):
+            ax.scatter(x, y, z, color=colors[int(collections[i]['floor'])], label=f'Line {i + 1}')
+
+        if add_label:
+            for i, (x, y, z) in enumerate(coordinates):
+                ax.text(x + .03, y + .03, z + .03, i % count_floors[int(collections[i]['floor'])], fontsize=9)
+
+    plt.title(title)
     handles = []
     for i in range(0, int(collections[len(collections) - 1]['floor']) + 1):
         handles.append(mpatches.Patch(color=colors[i], label='etaj' + str(i)))
@@ -73,4 +141,26 @@ def plot_mds(collections):
     plt.legend(handles=handles)
     plt.grid()
     plt.show()
-    fig.savefig(f"plot_mds.svg", bbox_inches='tight')
+    fig.savefig(file_name, bbox_inches='tight')
+
+def plot_all_mds(preprocessing_files_data, simil_methods, selections, aps=[]):
+    for simil_method in simil_methods:
+
+        for selection in selections:
+            plot_mds(
+                preprocessing_files_data[0] + preprocessing_files_data[2],
+                simil_method=simil_method,
+                aps=list(set(aps[0] + aps[2])),
+                n_dim=3,
+                xlabel='Dimensiunea1',
+                ylabel='Dimensiunea2',
+                zlabel='Dimnesiunea3',
+                title=f'[{simil_method.__name__}][{selection} Aps] Reprezentarea a 2 etaje utilizand MDS',
+                file_name=f'images/label_mds_3D_{simil_method.__name__}_2_floors_with_{selection}_aps',
+                selection=selection,  # Comm | All
+                add_label=True,
+                plot_slope=True,
+                print_angle=True,
+                check_one=True,
+                type_data='wifi'
+            )

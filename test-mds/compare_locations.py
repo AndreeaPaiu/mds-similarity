@@ -1,27 +1,44 @@
+import math
+
 import numpy as np
 from scipy.spatial.distance import braycurtis
 
 
-def compare_locations(c1, c2, simil_method = braycurtis,  selection = 'Average', dif = True, return_type='dis'):
+def compare_locations(c1, c2, simil_method = braycurtis,  selection='All', dif=True, return_type='dis', all_aps=[]):
     wifi1 = c1['wifi']
     wifi2 = c2['wifi']
-
-    common_aps = list(set(wifi1.keys()) & set(wifi2.keys()))
-
-    # No APs in common -> similarity = 1
-    if not common_aps:
-        return 1.0
-
-    if len(common_aps) <= min(len(wifi1.keys()), len(wifi2.keys())) / 4:
-        return 1.0
 
     rssi1 = []
     rssi2 = []
 
-    if selection == 'Average':
+    if selection == 'Comm':
+        common_aps = list(set(wifi1.keys()) & set(wifi2.keys()))
+
+        # # No APs in common -> similarity = 1
+        if not common_aps:
+            return 1.0
+
+        if len(common_aps) < min(len(wifi1.keys()), len(wifi2.keys())) / 4:
+            return 1.0
+
         for ap in common_aps:
             rssi1.append(wifi1[ap]['rssi'])
             rssi2.append(wifi2[ap]['rssi'])
+
+    if selection == 'All':
+        if not all_aps:
+            all_aps = list(set(wifi1.keys()) | set(wifi2.keys()))
+
+        for ap in all_aps:
+            if ap in wifi1:
+                rssi1.append(wifi1[ap]['rssi'])
+            else:
+                rssi1.append(0)
+
+            if ap in wifi2:
+                rssi2.append(wifi2[ap]['rssi'])
+            else:
+                rssi2.append(0)
 
     if return_type == 'rssi':
         return rssi1, rssi2
