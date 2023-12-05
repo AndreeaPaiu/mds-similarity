@@ -46,3 +46,7 @@ Am folosit functia plot_similarity_between_points care foloseste primul etaj si 
 
 ![manhattan-vs-distance-ds1b-with-all-aps](https://github.com/AndreeaPaiu/mds-similarity/assets/43491777/5cfe3fbb-5d52-452e-b885-b4732f6bb318)
 ![manhattan-vs-distance-ds1b](https://github.com/AndreeaPaiu/mds-similarity/assets/43491777/dfcd2586-0965-4169-85b8-f910afabc823)
+
+grafic folosinf mds si coordonatele carteziene
+
+![real-cartesian_system-all-floors](https://github.com/AndreeaPaiu/mds-similarity/assets/43491777/eccf0ea5-9951-4d1e-9ac5-fa24d4b748a0)
