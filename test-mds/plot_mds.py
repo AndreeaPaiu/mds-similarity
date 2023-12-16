@@ -1,8 +1,11 @@
+import random
+
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import braycurtis, cosine, correlation, yule
 from scipy.stats._mstats_basic import pearsonr
+from sklearn.cluster import KMeans
 from sklearn.manifold import MDS
 import matplotlib.patches as mpatches
 
@@ -12,15 +15,22 @@ from compute_mds_cartesian import *
 from pearsonr_similarity import *
 
 
-def plot_mds(collections, simil_method=braycurtis, aps=[], n_dim=2, xlabel='Dimensiunea1', ylabel='Dimensiunea2',
-             zlabel='Dimnesiunea3', title='', file_name='images/plot.svg', selection='All', add_label=False, check_one=False, plot_slope=False, print_angle=False, type_data='wifi'):
+def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1', ylabel='Dimensiunea2',
+             zlabel='Dimnesiunea3', title='', file_name='images/plot.svg', selection='All', add_label=False, check_one=False, plot_slope=False, print_angle=False, type_data='wifi', n_clusters=1):
     colors = []
     for color in matplotlib.colors.TABLEAU_COLORS:
         colors.append(color)
+    similarities = []
+
+    # pentru a fi sigura ca punctele pot fi random
+    random.shuffle(collections)
+    random.shuffle(collections)
+    random.shuffle(collections)
+    random.shuffle(collections)
 
     # Matricea de similarități între produse
     if type_data == 'wifi':
-        similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection, aps)
+        similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection)
 
     if type_data == 'cartesian':
         similarities, count_floors = compute_mds_cartesian(collections, n_dim)
@@ -35,20 +45,27 @@ def plot_mds(collections, simil_method=braycurtis, aps=[], n_dim=2, xlabel='Dime
         print(f"similaritati de 1: {count_one}")
 
     # Crearea unui obiect MDS cu n dimensiuni
+    # metric = False => valorile de 0 sunt cosidetare valori lipsa
     mds = MDS(n_components=n_dim, dissimilarity='precomputed')
 
     # Aplicarea MDS pe matricea de similarități
+
     coordinates = mds.fit_transform(similarities)
+
+    # clasificare puncte in 2 etaje
+    kmeans = KMeans(n_clusters=n_clusters)
+    kmeans.fit(coordinates)
+
+    add_floor_collections(collections, kmeans.labels_)
 
     # Vizualizarea rezultatelor
     fig = plt.figure()
     plt.axis('equal')
-    if n_dim == 3:
-        ax = fig.add_subplot(111, projection='3d')
-
     # plt.axis([-1, 1, -1, 1])
     # ax = fig.gca()
     # ax.set_autoscale_on(False)
+    if n_dim == 3:
+        ax = fig.add_subplot(111, projection='3d')
 
     if plot_slope:
         if n_dim != 3:
@@ -131,26 +148,27 @@ def plot_mds(collections, simil_method=braycurtis, aps=[], n_dim=2, xlabel='Dime
 
         if add_label:
             for i, (x, y, z) in enumerate(coordinates):
-                ax.text(x + .03, y + .03, z + .03, i % count_floors[int(collections[i]['floor'])], fontsize=9)
+                ax.text(x + .03, y + .03, z + .03, f"Set {int(collections[i]['floor'])}", fontsize=9)
 
     plt.title(title)
     handles = []
-    for i in range(0, int(collections[len(collections) - 1]['floor']) + 1):
-        handles.append(mpatches.Patch(color=colors[i], label='etaj' + str(i)))
+    print(int(collections[len(collections) - 1]['floor'] + 1 ))
+    for i in range(int(collections[len(collections) - 1]['floor'] + 1)):
+        handles.append(mpatches.Patch(color=colors[int(collections[i]['floor'])],
+                                      label='etaj' + str(int(collections[i]['floor']))))
 
     plt.legend(handles=handles)
     plt.grid()
     plt.show()
     fig.savefig(file_name, bbox_inches='tight')
 
-def plot_all_mds(preprocessing_files_data, simil_methods, selections, aps=[]):
+def plot_all_mds(preprocessing_files_data, simil_methods, selections):
     for simil_method in simil_methods:
 
         for selection in selections:
             plot_mds(
                 preprocessing_files_data[0] + preprocessing_files_data[2],
                 simil_method=simil_method,
-                aps=list(set(aps[0] + aps[2])),
                 n_dim=3,
                 xlabel='Dimensiunea1',
                 ylabel='Dimensiunea2',
@@ -164,3 +182,7 @@ def plot_all_mds(preprocessing_files_data, simil_methods, selections, aps=[]):
                 check_one=True,
                 type_data='wifi'
             )
+
+def add_floor_collections(collections, labels):
+    for i in range(len(collections)):
+        collections[i]['floor'] = labels[i]

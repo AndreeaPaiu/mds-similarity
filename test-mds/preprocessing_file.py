@@ -12,21 +12,24 @@ def read_json_file(absolut_path, file_name):
 
     return data
 
+
 # powed like in Sospedra Comprehensive, but scaled so that -100dBm=0 -30dBm=1
 adjust_rssi_params = -100, math.e, 2.63
 
-# more penalty for low dBm
-#adjust_rssi_params = -100, 2.0*math.e, 6.95
 
-#less penalty for high dBm
-#adjust_rssi_params = -100, 0.7*math.e, 1.97
+# more penalty for low dBm
+# adjust_rssi_params = -100, 2.0*math.e, 6.95
+
+# less penalty for high dBm
+# adjust_rssi_params = -100, 0.7*math.e, 1.97
 
 # rss_in param is int or list
 # rss_out is a list
 def adjust_rssi(rssi_in):
     min_rssi, exponent, scaler = adjust_rssi_params
     rss_out = np.array([])
-    if (type(rssi_in) is int) or (type(rssi_in) is float) or (type(rssi_in) is np.float64) or (type(rssi_in) is np.int64):
+    if (type(rssi_in) is int) or (type(rssi_in) is float) or (type(rssi_in) is np.float64) or (
+            type(rssi_in) is np.int64):
         rssi_in = np.array([rssi_in])
     if type(rssi_in) is list:
         rssi_in = np.array(rssi_in)
@@ -38,6 +41,7 @@ def adjust_rssi(rssi_in):
             rssi = 0
         rss_out = np.append(rss_out, rssi)
     return rss_out
+
 
 def get_real_cartesian_coordinates(data_file):
     real_cartesian_coordinates = {}
@@ -63,7 +67,6 @@ def get_real_cartesian_coordinates(data_file):
 
 def get_wifi_rssi(absolut_path, data_file):
     result = {}
-    aps = []
     for collection_key in data_file:
         collection = data_file[collection_key]
         if 'fingerprints' not in collection:
@@ -75,11 +78,6 @@ def get_wifi_rssi(absolut_path, data_file):
                 continue
 
             for mac in fingerprint['wifi']:
-                if mac not in aps:
-                    aps.append(mac)
-                if 'rssi' not in fingerprint['wifi'][mac]:
-                    continue
-
                 avg_pow = np.average(fingerprint["wifi"][mac]['rssi'])
 
                 if mac not in result[collection_key]:
@@ -91,7 +89,8 @@ def get_wifi_rssi(absolut_path, data_file):
                 if result[collection_key][mac]['rssi'] == 0:
                     result.pop(collection_key)
 
-    return result, aps
+    return result
+
 
 def preprocessing_required_data(absolut_path, file_name, floor):
     # get file data
@@ -103,7 +102,7 @@ def preprocessing_required_data(absolut_path, file_name, floor):
     real_cartesian_coordinates = get_real_cartesian_coordinates(file_data)
 
     # get wifi rssi
-    wifi_rssi, aps = get_wifi_rssi(absolut_path, file_data)
+    wifi_rssi = get_wifi_rssi(absolut_path, file_data)
 
     for collection_key in file_data:
         if collection_key not in result:
@@ -118,7 +117,7 @@ def preprocessing_required_data(absolut_path, file_name, floor):
     result_array = []
     for key in result:
         if result[key] != {}:
-            result[key]['floor'] = floor
+            result[key]['floor_id'] = floor
             result_array.append(result[key])
 
-    return result_array, aps
+    return result_array

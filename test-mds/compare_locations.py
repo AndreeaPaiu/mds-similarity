@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial.distance import braycurtis
 
 
-def compare_locations(c1, c2, simil_method = braycurtis,  selection='All', dif=True, return_type='dis', all_aps=[]):
+def compare_locations(c1, c2, simil_method = braycurtis,  selection='All', dif=True, return_type='dis'):
     wifi1 = c1['wifi']
     wifi2 = c2['wifi']
 
@@ -26,8 +26,7 @@ def compare_locations(c1, c2, simil_method = braycurtis,  selection='All', dif=T
             rssi2.append(wifi2[ap]['rssi'])
 
     if selection == 'All':
-        if not all_aps:
-            all_aps = list(set(wifi1.keys()) | set(wifi2.keys()))
+        all_aps = list(set(set(wifi1.keys()) | set(wifi2.keys())))
 
         for ap in all_aps:
             if ap in wifi1:
