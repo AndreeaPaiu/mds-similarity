@@ -136,7 +136,7 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
 
         if add_label:
             for i, (x, y) in enumerate(coordinates):
-                plt.text(x + .03, y + .03, i, fontsize=9)
+                plt.text(x + .03, y + .03, collections[i]['label_id'], fontsize=9)
 
     if n_dim == 3:
         ax.set_xlabel(xlabel)
@@ -148,11 +148,10 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
 
         if add_label:
             for i, (x, y, z) in enumerate(coordinates):
-                ax.text(x + .03, y + .03, z + .03, f"Set {int(collections[i]['floor'])}", fontsize=9)
+                ax.text(x + .03, y + .03, z + .03, collections[i]['label_id'], fontsize=9)
 
     plt.title(title)
     handles = []
-    print(int(collections[len(collections) - 1]['floor'] + 1 ))
     for i in range(int(collections[len(collections) - 1]['floor'] + 1)):
         handles.append(mpatches.Patch(color=colors[int(collections[i]['floor'])],
                                       label='etaj' + str(int(collections[i]['floor']))))

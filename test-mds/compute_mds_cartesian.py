@@ -9,9 +9,9 @@ def compute_mds_cartesian(collections, n_dim):
     count_floors = {}
 
     for i in range(len(collections)):
-        if int(collections[i]['floor']) not in count_floors:
-            count_floors[int(collections[i]['floor'])] = 0
-        count_floors[int(collections[i]['floor'])] += 1
+        if int(collections[i]['floor_id']) not in count_floors:
+            count_floors[int(collections[i]['floor_id'])] = 0
+        count_floors[int(collections[i]['floor_id'])] += 1
         for j in range(len(collections)):
             if 'real_coordinates' not in collections[i] or 'real_coordinates' not in collections[j]:
                 similarities[i][j] = 100

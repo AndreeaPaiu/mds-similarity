@@ -40,15 +40,18 @@ def plot_mds_real_cartesian_system(collections):
 
     colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w']
 
-    plt.scatter(coordinates[:, 0], coordinates[:, 1])
+    # plt.scatter(coordinates[:, 0], coordinates[:, 1])
     for i, (x, y) in enumerate(coordinates):
-        plt.plot(x, y, colors[int(collections[i]['floor'])] + 'o')
+        plt.plot(x, y, colors[int(collections[i]['floor_id'])] + 'o')
+
+    for i, (x, y) in enumerate(coordinates):
+        plt.text(x + .03, y + .03, collections[i]['label_id'], fontsize=9)
 
     plt.xlabel('Dimensiune 1')
     plt.ylabel('Dimensiune 2')
     plt.title('Reprezentarea similarității între produse folosind MDS')
     handles = []
-    for i in range(0, int(collections[len(collections) - 1]['floor']) + 1):
+    for i in range(0, int(collections[len(collections) - 1]['floor_id']) + 1):
         handles.append(mpatches.Patch(color=colors[i], label='etaj' + str(i)))
 
     plt.legend(handles=handles)

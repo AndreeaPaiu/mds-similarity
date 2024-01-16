@@ -115,9 +115,12 @@ def preprocessing_required_data(absolut_path, file_name, floor):
             result[collection_key]['wifi'] = wifi_rssi[collection_key]
 
     result_array = []
+    i = 0
     for key in result:
         if result[key] != {}:
+            result[key]['label_id'] = i
             result[key]['floor_id'] = floor
             result_array.append(result[key])
+            i += 1
 
     return result_array

@@ -47,41 +47,45 @@ if __name__ == '__main__':
         preprocessing_files_data.append(file_data)
         merged_data += file_data
 
-    plot_mds(
-        preprocessing_files_data[0] + preprocessing_files_data[1] + preprocessing_files_data[2] + preprocessing_files_data[3],
-        simil_method=cosine,
-        n_dim=3,
-        xlabel='Dimensiunea1',
-        ylabel='Dimensiunea2',
-        zlabel='Dimnesiunea3',
-        title='[cosine][All Aps] Reprezentarea a 2 etaje utilizand MDS',
-        file_name='images/label_mds_3D_cosine_2_floors',
-        selection='All',  # Comm
-        add_label=True,
-        plot_slope=True,
-        print_angle=True,
-        check_one=True,
-        type_data='wifi',
-        n_clusters=2
-    )
+    # mapping_floors_nearst_point_similarity(preprocessing_files_data[2], preprocessing_files_data[4])
+    # mapping_floors_nearst_point_distance(preprocessing_files_data[2], preprocessing_files_data[4])
+    # mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
 
-    plot_mds_z(
-        merged_data,
-        simil_method=cosine,
-        n_dim=3,
-        xlabel='Dimensiunea1',
-        ylabel='Dimensiunea2',
-        zlabel='Dimnesiunea3',
-        title='[cosine][All Aps] Reprezentarea a 2 etaje utilizand MDS',
-        file_name='images/label_mds_3D_cosine_2_floors',
-        selection='All',  # Comm
-        add_label=True,
-        plot_slope=False,
-        print_angle=False,
-        check_one=False,
-        type_data='wifi',
-        n_clusters=8
-    )
+    # plot_mds(
+    #     preprocessing_files_data[2],
+    #     simil_method=cosine,
+    #     n_dim=2,
+    #     xlabel='Dimensiunea1',
+    #     ylabel='Dimensiunea2',
+    #     zlabel='Dimnesiunea3',
+    #     title='[cosine][All Aps] Reprezentarea a 1 etaje utilizand MDS',
+    #     file_name='images/label_mds_3D_cosine_1_floors',
+    #     selection='All',  # Comm, All
+    #     add_label=True,
+    #     plot_slope=True,
+    #     print_angle=True,
+    #     check_one=True,
+    #     type_data='wifi', # cartesian, wifi
+    #     n_clusters=1
+    # )
+    #
+    # plot_mds_z(
+    #     preprocessing_files_data[2] + preprocessing_files_data[4],
+    #     simil_method=cosine,
+    #     n_dim=3,
+    #     xlabel='Dimensiunea1',
+    #     ylabel='Dimensiunea2',
+    #     zlabel='Dimnesiunea3',
+    #     title='[cosine][All Aps] Reprezentarea a 2 etaje utilizand MDS',
+    #     file_name='images/label_mds_3D_cosine_2_floors',
+    #     selection='All',  # Comm
+    #     add_label=True,
+    #     plot_slope=False,
+    #     print_angle=False,
+    #     check_one=False,
+    #     type_data='wifi',
+    #     n_clusters=2
+    # )
 
     # plot_similarity_between_points(
     #     preprocessing_files_data[0] + preprocessing_files_data[1],

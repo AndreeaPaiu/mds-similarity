@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 # Generare aleatorie a unui set de puncte
 np.random.seed(0)
 X = np.random.rand(100,2)
-random.shuffle(X)
+# random.shuffle(X)
 
 # Antrenarea algoritmului <link>K-means</link> pentru a clasifica punctele în 2 grupuri
 kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
