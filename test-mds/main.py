@@ -8,7 +8,7 @@ from plot_mds import plot_mds, plot_all_mds
 from plot_similarity_to_nearby_point import plot_similarity_to_nearby_point
 from compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points import \
     compute_max_dissimilarities_between_signatures_of_the_two_phones_at_the_same_points
-from plot_similarity_between_points import plot_similarity_between_points, plot_all_similarity_between_points
+from plot_similarity_between_points import *
 from compute_similarities_using_neighbors import compute_similarities_using_neighbors
 from plot_dis_similarity_with_percentage_non_common_aps import *
 from compare_locations import *
@@ -28,6 +28,8 @@ from plot_mds_3D_pearsonr import *
 from plot_mds_3D_manhattan import *
 from pearsonr_similarity import *
 from plot_mds_z import *
+from helpers import f_add_noise
+import copy
 
 absolut_path = ""
 simil_methods = [braycurtis, cosine, pearsonr_similarity, correlation, yule]
@@ -51,40 +53,51 @@ if __name__ == '__main__':
     # mapping_floors_nearst_point_distance(preprocessing_files_data[2], preprocessing_files_data[4])
     # mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
 
-    # plot_mds(
-    #     preprocessing_files_data[2],
+    plot_mds(
+        preprocessing_files_data[0] +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]) +
+        copy.deepcopy(preprocessing_files_data[0]),
+        simil_method=cosine,
+        n_dim=2,
+        xlabel='Distanta (m)',
+        ylabel='Distanta (m)',
+        zlabel='Distanta (m)',
+        title='Reprezentare parter coordonate carteziene utilizand MDS 10 straturi',
+        file_name='images/raport-2/md_0_coord_cart_3_noise_10_layer.png',
+        selection='All',  # Comm, All
+        add_label=True,
+        plot_slope=False,
+        print_angle=False,
+        check_one=False,
+        type_data='cartesian', # cartesian, wifi
+        n_clusters=1,
+        add_noise=True,
+        range_value=3
+    )
+
+    # plot_mds_z(
+    #     preprocessing_files_data[1][0:12],
     #     simil_method=cosine,
     #     n_dim=2,
     #     xlabel='Dimensiunea1',
     #     ylabel='Dimensiunea2',
     #     zlabel='Dimnesiunea3',
-    #     title='[cosine][All Aps] Reprezentarea a 1 etaje utilizand MDS',
-    #     file_name='images/label_mds_3D_cosine_1_floors',
-    #     selection='All',  # Comm, All
-    #     add_label=True,
-    #     plot_slope=True,
-    #     print_angle=True,
-    #     check_one=True,
-    #     type_data='wifi', # cartesian, wifi
-    #     n_clusters=1
-    # )
-    #
-    # plot_mds_z(
-    #     preprocessing_files_data[2] + preprocessing_files_data[4],
-    #     simil_method=cosine,
-    #     n_dim=3,
-    #     xlabel='Dimensiunea1',
-    #     ylabel='Dimensiunea2',
-    #     zlabel='Dimnesiunea3',
-    #     title='[cosine][All Aps] Reprezentarea a 2 etaje utilizand MDS',
-    #     file_name='images/label_mds_3D_cosine_2_floors',
+    #     title='Reprezentarea toate etajele',
+    #     file_name='images/md_all_etaje_wifi.png',
     #     selection='All',  # Comm
     #     add_label=True,
     #     plot_slope=False,
     #     print_angle=False,
     #     check_one=False,
     #     type_data='wifi',
-    #     n_clusters=2
+    #     n_clusters=1
     # )
 
     # plot_similarity_between_points(
@@ -98,7 +111,8 @@ if __name__ == '__main__':
     # plot_all_similarity_between_points(
     #     preprocessing_files_data[0] + preprocessing_files_data[1],
     #     simil_methods=simil_methods,
-    #     selections=selections
+    #     selections=selections,
+    #     sm=compute_similarities_using_neighbors_2
     # )
 
     # plot_all_mds(preprocessing_files_data, simil_methods, selections)
@@ -158,9 +172,9 @@ if __name__ == '__main__':
     # print(compare_locations(preprocessing_files_data[0][0], preprocessing_files_data[0][1]))
 
     # import numpy as np
-    from numpy.linalg import norm
-    # A = [0.1, 0.2, 0.3, 0]
-    # B = [0, 0.2, 0.3, 0]
+    # from numpy.linalg import norm
+    # A = [0.1, 0.2, 0.3, 0.1]
+    # B = [0.1, 0.2, 0.3, 0]
     # C = [0.1, 0.2, 0.3, 0.4]
     # D = [0.4, 0.2, 0.3, 0]
     # print(braycurtis(A, B))

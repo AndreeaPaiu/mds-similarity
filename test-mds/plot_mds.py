@@ -13,24 +13,31 @@ from compare_locations import compare_locations
 from compute_mds_wifi_similarity import *
 from compute_mds_cartesian import *
 from pearsonr_similarity import *
+from helpers import f_add_noise
 
 
 def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1', ylabel='Dimensiunea2',
-             zlabel='Dimnesiunea3', title='', file_name='images/plot.svg', selection='All', add_label=False, check_one=False, plot_slope=False, print_angle=False, type_data='wifi', n_clusters=1):
+             zlabel='Dimnesiunea3', title='', file_name='images/plot.svg', selection='All', add_label=False, check_one=False, plot_slope=False, print_angle=False, type_data='wifi', n_clusters=1, add_noise=False, range_value=0.5):
     colors = []
     for color in matplotlib.colors.TABLEAU_COLORS:
         colors.append(color)
+
+    # add noise
+    if add_noise:
+        f_add_noise(collections, range_value)
+
     similarities = []
 
     # pentru a fi sigura ca punctele pot fi random
-    random.shuffle(collections)
-    random.shuffle(collections)
-    random.shuffle(collections)
-    random.shuffle(collections)
+    # random.shuffle(collections)
+    # random.shuffle(collections)
+    # random.shuffle(collections)
+    # random.shuffle(collections)
 
     # Matricea de similarități între produse
     if type_data == 'wifi':
         similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection)
+
 
     if type_data == 'cartesian':
         similarities, count_floors = compute_mds_cartesian(collections, n_dim)
@@ -132,11 +139,13 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         for i, (x, y) in enumerate(coordinates):
-            plt.scatter(x, y, color=colors[int(collections[i]['floor'])], label=f'Line {i + 1}')
+            plt.scatter(x, y, color=colors[int(collections[i]['floor_id'])], label=f'Line {i + 1}')
 
         if add_label:
             for i, (x, y) in enumerate(coordinates):
                 plt.text(x + .03, y + .03, collections[i]['label_id'], fontsize=9)
+
+
 
     if n_dim == 3:
         ax.set_xlabel(xlabel)
@@ -151,12 +160,13 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
                 ax.text(x + .03, y + .03, z + .03, collections[i]['label_id'], fontsize=9)
 
     plt.title(title)
-    handles = []
-    for i in range(int(collections[len(collections) - 1]['floor'] + 1)):
-        handles.append(mpatches.Patch(color=colors[int(collections[i]['floor'])],
-                                      label='etaj' + str(int(collections[i]['floor']))))
 
+    handles = []
+    for i in range(int(int(collections[len(collections) - 1]['floor_id']) + 1)):
+        handles.append(mpatches.Patch(color=colors[i],
+                                      label='etaj' + str(i)))
     plt.legend(handles=handles)
+
     plt.grid()
     plt.show()
     fig.savefig(file_name, bbox_inches='tight')
@@ -166,18 +176,18 @@ def plot_all_mds(preprocessing_files_data, simil_methods, selections):
 
         for selection in selections:
             plot_mds(
-                preprocessing_files_data[0] + preprocessing_files_data[2],
+                preprocessing_files_data[0],
                 simil_method=simil_method,
-                n_dim=3,
+                n_dim=2,
                 xlabel='Dimensiunea1',
                 ylabel='Dimensiunea2',
                 zlabel='Dimnesiunea3',
-                title=f'[{simil_method.__name__}][{selection} Aps] Reprezentarea a 2 etaje utilizand MDS',
-                file_name=f'images/label_mds_3D_{simil_method.__name__}_2_floors_with_{selection}_aps',
+                title=f'[{simil_method.__name__}] Reprezentare a parterului utilizand MDS',
+                file_name=f'images/mds_2D_{simil_method.__name__}_2_floors_with_{selection}_aps_2.png',
                 selection=selection,  # Comm | All
                 add_label=True,
-                plot_slope=True,
-                print_angle=True,
+                plot_slope=False,
+                print_angle=False,
                 check_one=True,
                 type_data='wifi'
             )

@@ -29,7 +29,6 @@ def add_floor_label_to_collection(collections, simil_method, n_clusters, selecti
     mds = MDS(n_components=n_dim, dissimilarity='precomputed')
 
     # Aplicarea MDS pe matricea de similarități
-
     coordinates = mds.fit_transform(similarities)
 
     # clasificare puncte in 2 etaje
@@ -221,3 +220,9 @@ def mapping_floors_nearst_point_coord(collections1, collections2):
 
 
 
+def f_add_noise(collections, range_value = 0.5):
+    for collection in collections:
+        collection['real_coordinates'][0] += random.uniform(-range_value, range_value)
+        collection['real_coordinates'][1] += random.uniform(-range_value, range_value)
+        collection['real_coordinates'][2] += random.uniform(-range_value, range_value)
+    return collections
