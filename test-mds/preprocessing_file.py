@@ -119,7 +119,7 @@ def preprocessing_required_data(absolut_path, file_name, floor):
     for key in result:
         if result[key] != {}:
             result[key]['label_id'] = i
-            result[key]['floor_id'] = floor
+            result[key]['floor_id'] = 0
             result_array.append(result[key])
             i += 1
 

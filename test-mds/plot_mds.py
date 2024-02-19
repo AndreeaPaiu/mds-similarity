@@ -139,7 +139,7 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         for i, (x, y) in enumerate(coordinates):
-            plt.scatter(x, y, color=colors[int(collections[i]['floor_id'])], label=f'Line {i + 1}')
+            plt.scatter(x, y, color=colors[int(collections[i]['floor'])], label=f'Line {i + 1}')
 
         if add_label:
             for i, (x, y) in enumerate(coordinates):
@@ -162,7 +162,7 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
     plt.title(title)
 
     handles = []
-    for i in range(int(int(collections[len(collections) - 1]['floor_id']) + 1)):
+    for i in range(int(int(collections[len(collections) - 1]['floor'] + 1))):
         handles.append(mpatches.Patch(color=colors[i],
                                       label='etaj' + str(i)))
     plt.legend(handles=handles)

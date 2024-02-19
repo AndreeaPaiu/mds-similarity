@@ -54,36 +54,27 @@ if __name__ == '__main__':
     # mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
 
     plot_mds(
-        preprocessing_files_data[0] +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]) +
-        copy.deepcopy(preprocessing_files_data[0]),
+        merged_data,
         simil_method=cosine,
         n_dim=2,
-        xlabel='Distanta (m)',
-        ylabel='Distanta (m)',
+        xlabel='Dimensiune',
+        ylabel='Dimensiune',
         zlabel='Distanta (m)',
-        title='Reprezentare parter coordonate carteziene utilizand MDS 10 straturi',
-        file_name='images/raport-2/md_0_coord_cart_3_noise_10_layer.png',
+        title='Reprezentare parter cu WIFI fingerprints utilizand MDS 4 straturi',
+        file_name='images/raport-2/md_0_wifi_4_layer.png',
         selection='All',  # Comm, All
         add_label=True,
         plot_slope=False,
         print_angle=False,
         check_one=False,
-        type_data='cartesian', # cartesian, wifi
+        type_data='wifi', # cartesian, wifi
         n_clusters=1,
-        add_noise=True,
+        add_noise=False,
         range_value=3
     )
 
     # plot_mds_z(
-    #     preprocessing_files_data[1][0:12],
+    #     preprocessing_files_data[0][0:12],
     #     simil_method=cosine,
     #     n_dim=2,
     #     xlabel='Dimensiunea1',
