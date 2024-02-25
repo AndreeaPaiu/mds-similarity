@@ -66,7 +66,7 @@ if __name__ == '__main__':
         add_label=True,
         plot_slope=False,
         print_angle=False,
-        check_one=False,
+        check_one=True,
         type_data='wifi', # cartesian, wifi
         n_clusters=1,
         add_noise=False,
