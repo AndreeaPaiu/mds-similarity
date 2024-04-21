@@ -1,6 +1,8 @@
 import sys
 
 from numpy.linalg import norm
+from scipy.linalg import orthogonal_procrustes
+from scipy.spatial import procrustes
 from scipy.stats._mstats_basic import pearsonr
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -49,47 +51,104 @@ if __name__ == '__main__':
         preprocessing_files_data.append(file_data)
         merged_data += file_data
 
-    # mapping_floors_nearst_point_similarity(preprocessing_files_data[2], preprocessing_files_data[4])
+    #
+    # # Define two sets of points as numpy arrays
+    # points1 = np.array([[1, 2], [3, 4], [5, 6]])
+    # points2 = np.array([[2, 3], [4, 5], [6, 7]])
+    #
+    # # Compute the optimal rotation matrix using orthogonal Procrustes
+    # rotation_matrix, _ = orthogonal_procrustes(points1, points2)
+    #
+    # # Apply the rotation matrix to points2
+    # # aligned_points2 = points2 @ rotation_matrix
+    # aligned_points2 = np.dot(points2, rotation_matrix)
+    # print("aligned_points")
+    # print(aligned_points2)
+    # print("points1")
+    # print(points1)
+    # print("points2")
+    # print(points2)
+    #
+    # mtx1, mtx2, disparity = procrustes(points1, points2)
+    # print("mtx1")
+    # print(mtx1)
+    # print("mtx2")
+    # print(mtx2)
+    #
+    # # Plot the original points and the aligned points
+    # plt.figure()
+    # plt.scatter(points1[:, 0], points1[:, 1], color='blue', label='Original Points 1')
+    # plt.scatter(points2[:, 0], points2[:, 1], color='red', label='Original Points 2')
+    # plt.scatter(aligned_points2[:, 0], aligned_points2[:, 1], color='green', label='Aligned Points 2')
+    # plt.legend()
+    # plt.title('Orthogonal Procrustes Alignment')
+    # plt.xlabel('X')
+    # plt.ylabel('Y')
+    # plt.grid(True)
+    # plt.show()
+    #
+    # exit()
+
+    # print(merged_data)
+    # mapping_floors_nearst_point_similarity(preprocessing_files_data[12], preprocessing_files_data[14])
     # mapping_floors_nearst_point_distance(preprocessing_files_data[2], preprocessing_files_data[4])
     # mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
 
-    plot_mds(
-        merged_data,
-        simil_method=cosine,
-        n_dim=2,
-        xlabel='Dimensiune',
-        ylabel='Dimensiune',
-        zlabel='Distanta (m)',
-        title='Reprezentare parter cu WIFI fingerprints utilizand MDS 4 straturi',
-        file_name='images/raport-2/md_0_wifi_4_layer.png',
-        selection='All',  # Comm, All
-        add_label=True,
-        plot_slope=False,
-        print_angle=False,
-        check_one=True,
-        type_data='wifi', # cartesian, wifi
-        n_clusters=1,
-        add_noise=False,
-        range_value=3
-    )
+    # order_floors_using_only_one_points_per_floor(
+    #             [preprocessing_files_data[0][0],
+    #               preprocessing_files_data[2][0],
+    #               preprocessing_files_data[4][0],
+    #               preprocessing_files_data[6][0],
+    #              preprocessing_files_data[8][0],
+    #              preprocessing_files_data[10][0],
+    #              preprocessing_files_data[12][0],
+    #              preprocessing_files_data[14][0]])
 
-    # plot_mds_z(
-    #     preprocessing_files_data[0][0:12],
+
+    # plot_mds(
+    #     merged_data,
     #     simil_method=cosine,
     #     n_dim=2,
-    #     xlabel='Dimensiunea1',
-    #     ylabel='Dimensiunea2',
-    #     zlabel='Dimnesiunea3',
-    #     title='Reprezentarea toate etajele',
-    #     file_name='images/md_all_etaje_wifi.png',
-    #     selection='All',  # Comm
+    #     xlabel='Dimensiune',
+    #     ylabel='Dimensiune',
+    #     zlabel='Distanta (m)',
+    #     title='Reprezentare parter cu WIFI fingerprints utilizand MDS 4 straturi',
+    #     file_name='images/raport-2/md_0_wifi_4_layer.png',
+    #     selection='All',  # Comm, All
     #     add_label=True,
     #     plot_slope=False,
     #     print_angle=False,
-    #     check_one=False,
-    #     type_data='wifi',
-    #     n_clusters=1
+    #     check_one=True,
+    #     type_data='wifi', # cartesian, wifi
+    #     n_clusters=1,
+    #     add_noise=False,
+    #     range_value=3
     # )
+
+    plot_mds_z(
+        preprocessing_files_data[0] + preprocessing_files_data[1] +
+        preprocessing_files_data[2] + preprocessing_files_data[3] +
+        preprocessing_files_data[4] + preprocessing_files_data[5] +
+        preprocessing_files_data[6] + preprocessing_files_data[7] +
+        preprocessing_files_data[8] + preprocessing_files_data[9] +
+        preprocessing_files_data[10] + preprocessing_files_data[11] +
+        preprocessing_files_data[12] + preprocessing_files_data[13] +
+        preprocessing_files_data[14] + preprocessing_files_data[15],
+        simil_method=cosine,
+        n_dim=3,
+        xlabel='Dimensiunea1',
+        ylabel='Dimensiunea2',
+        zlabel='Dimnesiunea3',
+        title='Reprezentarea toate etajele',
+        file_name='images/raport-2/md_ordered_floors.png',
+        selection='All',  # Comm
+        add_label=True,
+        plot_slope=False,
+        print_angle=False,
+        check_one=False,
+        type_data='wifi',
+        n_clusters=8
+    )
 
     # plot_similarity_between_points(
     #     preprocessing_files_data[0] + preprocessing_files_data[1],

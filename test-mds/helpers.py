@@ -1,29 +1,24 @@
 import random
 
 import matplotlib
+import numpy
+import numpy as np
 from matplotlib import pyplot as plt
+from scipy.spatial import procrustes
 from sklearn.cluster import KMeans
 from sklearn.manifold import MDS
 
 from compute_mds_wifi_similarity import *
 from compute_mds_cartesian import *
 from scipy.spatial.distance import cosine
+from sklearn.decomposition import PCA
 
 colors = []
 for color in matplotlib.colors.TABLEAU_COLORS:
     colors.append(color)
 
 
-def add_floor_label_to_collection(collections, simil_method, n_clusters, selection='All', type_data='wifi', n_dim=3):
-    similarities = []
-
-    # Matricea de similarități între produse
-    if type_data == 'wifi':
-        similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection)
-
-    if type_data == 'cartesian':
-        similarities, count_floors = compute_mds_cartesian(collections, n_dim)
-
+def add_floor_label_to_collection(collections, similarities, n_clusters, n_dim=3):
     # Crearea unui obiect MDS cu n dimensiuni
     # metric = False => valorile de 0 sunt cosidetare valori lipsa
     mds = MDS(n_components=n_dim, dissimilarity='precomputed')
@@ -37,16 +32,16 @@ def add_floor_label_to_collection(collections, simil_method, n_clusters, selecti
 
     add_floor_collections(collections, kmeans.labels_)
 
-    # print(f"labels = {len(labels)}")
-    # exit()
     return collections
+
 
 def add_floor_collections(collections, labels):
     for i in range(len(collections)):
         collections[i]['floor'] = int(labels[i])
 
+
 def order_floor_collection(collections):
-    #separ pe etaje
+    # separ pe etaje
     floors_collections = {}
     for collection in collections:
         if collection['floor'] not in floors_collections:
@@ -60,15 +55,12 @@ def order_floor_collection(collections):
     exit()
 
 
-
-
-def compute_2D_mds(collections, simil_method, selection='All', type_data='wifi'):
-
-    floor_number = int(collections[0]['floor'])
+def compute_2D_mds(collections, simil_method, ref_coordinates=None, selection='All', type_data='wifi', ref_collection=None):
     floor_id = int(collections[0]['floor_id'])
     similarities = []
+    mtx = []
 
-    # Matricea de similarități între produse
+    # Matricea de similarități între puncte( cate un etaj)
     if type_data == 'wifi':
         similarities, count_floors = compute_mds_wifi_similarity(collections, simil_method, selection)
 
@@ -79,28 +71,32 @@ def compute_2D_mds(collections, simil_method, selection='All', type_data='wifi')
     mds = MDS(n_components=2, dissimilarity='precomputed')
 
     # Aplicarea MDS pe matricea de similarități
-
     coordinates = mds.fit_transform(similarities)
 
-
-    # # Aflarea numărului de coloane
-    # num_cols = len(coordinates[1])
-    #
-    # sums = [sum(row[i] for row in coordinates) for i in range(num_cols)]
-    # x = sums[0] / len(coordinates)
-    # y = sums[1] / len(coordinates)
-
+    # align points
+    # align_points_coordinates = []
+    # if ref_coordinates is not None and ref_collection is not None:
+    #     mtx, align_points_coordinates, disparity = align_points(ref_collection, collections, ref_coordinates, coordinates)
 
     new_coords = []
     for coord in coordinates:
         new_coords.append([
             coord[0],
             coord[1],
-            floor_number,
             floor_id
         ])
 
+    # return new_coords, coordinates, mtx
     return new_coords
+
+def align_points(ref_collection, source_collection, ref_points, source_points):
+
+    # compute_correspondences
+    correspondences = mapping_floors_nearst_point_distance(ref_collection, source_collection)
+
+    points_reordered = np.array([source_points[idx] for idx in [corr[1] for corr in correspondences]])
+
+    return procrustes(ref_points, points_reordered)
 
 def find_nearest_point_similarity(point, collections, simil_method=cosine, selection="All"):
     # random.shuffle(collections)
@@ -113,86 +109,139 @@ def find_nearest_point_similarity(point, collections, simil_method=cosine, selec
         new_similarity = compare_locations(point, collection, simil_method, selection=selection)
 
         if similarity > new_similarity:
-            nearestpoint = collection
+            nearestpoint = collection.copy()
             similarity = new_similarity
 
     return nearestpoint
+
 
 def mapping_floors_nearst_point_similarity(collections1, collections2, simil_method=cosine, selection="All"):
     # random.shuffle(collections2)
     similarities = {}
     for collection_1 in collections1:
-        similarities[collection_1['label_id']] = find_nearest_point_similarity(collection_1, collections2, simil_method=cosine, selection="All")['label_id']
+        print(collection_1['label_id'])
+        similarities[collection_1['label_id']] = \
+        find_nearest_point_similarity(collection_1, collections2, simil_method, selection)['label_id']
+        print(similarities[collection_1['label_id']])
+        exit()
+    print(similarities)
 
     similarities_set = set()
     for key in similarities:
         similarities_set.add(similarities[key])
         print(f"{key} -> {similarities[key]}")
+
+    print(similarities_set)
     print(f"numarul de puncte vazute ca cele mai apropiate {len(similarities_set)}")
 
 
 # distanta folosit coordonatele de la mds
-def find_nearest_point_distance(point, collections):
+def find_nearest_point_distance(point, collections, used=[]):
     # random.shuffle(collections)
-    distance = 10
-    nearestpoint = {}
+    distance = 1000
+    nearest_point = -1
 
     for collection in collections:
-
+        if collection['label_id'] in used:
+            continue
         new_distance = math.dist(point, collection['coord'])
         # new_distance = math.sqrt(math.pow(collection['coord'][0] - point[0], 2) +
         #         math.pow(collection['coord'][1] - point[1], 2) +
         #         math.pow(collection['coord'][2] - point[2], 2) * 1.0)
         if distance > new_distance:
-            nearestpoint = collection
+            nearest_point = collection['label_id']
             distance = new_distance
 
-    return nearestpoint
+    return nearest_point
 
-def mapping_floors_nearst_point_distance(collections1, collections2 , simil_method=cosine, selection="All"):
+
+def mapping_floors_nearst_point_distance(collections1, collections2, simil_method=cosine, selection="All"):
     merge_data = collections1 + collections2
     similarities, count_floors = compute_mds_wifi_similarity(merge_data, simil_method, selection)
     mds = MDS(n_components=3, dissimilarity='precomputed')
 
     # Aplicarea MDS pe matricea de similarități
-
     coordinates = mds.fit_transform(similarities)
+    pca = PCA(3)
+    pca.fit(coordinates)
+    coordinates = pca.fit_transform(coordinates)
 
-    for i in range(len(coordinates)):
-        merge_data[i]['coord'] = [coordinates[i][0], coordinates[i][1], int(merge_data[i]['floor_id'])]
-        # merge_data[i]['coord'] = coordinates[i]
+    for i in range(len(merge_data)):
+        merge_data[i]['coord'] = [coordinates[i][1], coordinates[i][2]]
+
     distances = {}
-    for i in range(len(collections1)):
-        distances[merge_data[i]['label_id']] = find_nearest_point_distance(merge_data[i]['coord'], merge_data[len(collections1):])
+    used = []
+    used_etp = []
+    unfounded = []
+    unfounded_etp = collections1
 
-    distances_set = set()
-    for key in distances:
-        distances_set.add(distances[key]['label_id'])
-        print(f"{key} -> {distances[key]['label_id']}")
+    while True:
+        if len(collections1) < len(collections2) and len(unfounded_etp) == 0:
+            break
+        elif len(collections1) >= len(collections2) and len(unfounded_etp) == abs(len(collections1) - len(collections2)):
+            break
+        used = list(set(used + used_etp))
+        for i in range(len(unfounded_etp)):
+            # get the nearest point
+            distances[unfounded_etp[i]['label_id']] = find_nearest_point_distance(unfounded_etp[i]['coord'],
+                                                                               merge_data[len(collections1):],
+                                                                               used)
 
-    print(f"numarul de puncte vazute ca cele mai apropiate {len(distances_set)}")
+            # check if points is used
+            if distances[unfounded_etp[i]['label_id']] in used_etp:
+                unfounded.append(unfounded_etp[i])
 
-    print(distances)
-    exit()
+            # point is used
+            used_etp.append(distances[unfounded_etp[i]['label_id']])
+
+        unfounded_etp = unfounded
+        unfounded = []
+
+    # distances_set = set()
+    distances_array = []
+    # for key in distances:
+    #     distances_set.add(distances[key])
+    #     print(f"{key} -> {distances[key]}")
+    for i in range(len(distances)):
+        distances_array.append((i, distances[i]))
+
+    # print(f"numarul de puncte vazute ca cele mai apropiate {len(distances_set)}")
+
     lines_coords = []
 
-    for i in range(len(collections1)):
-        line = {}
-        line['0'] = coordinates[i]
-        line['1'] = distances[i]['coord']
-        lines_coords.append(line)
-    ploting_3D(coordinates, merge_data)
+    # for i in range(len(collections1)):
+    # line = {}
+    # line['0'] = coordinates[i]
+    # line['1'] = distances[i]['coord']
+    # lines_coords.append(line)
+    # ploting_3D(coordinates, merge_data)
+    return distances_array
 
-def ploting_3D(coordinates,collections):
+
+def ploting_3D(coordinates, collections):
     fig = plt.figure()
     plt.axis('equal')
     ax = fig.add_subplot(111, projection='3d')
+    plt.xlabel('x')
+    plt.ylabel('y')
     for i, (x, y, z) in enumerate(coordinates):
         ax.scatter(x, y, z, color=colors[int(collections[i]['floor_id'])], label=f'Line {i + 1}')
         ax.text(x + .03, y + .03, z + .03, collections[i]['label_id'], fontsize=9)
 
     plt.grid()
     plt.show()
+
+
+def ploting_2D(coordinates, collections):
+    fig = plt.figure()
+    plt.axis('equal')
+    for i, (x, y) in enumerate(coordinates):
+        plt.scatter(x, y, color=colors[int(collections[i]['floor_id'])], label=f'Line {i + 1}')
+        plt.text(x + .03, y + .03, collections[i]['label_id'], fontsize=9)
+
+    plt.grid()
+    plt.show()
+
 
 # cartesian system
 def find_nearest_point_distance_coord(point, collections):
@@ -207,6 +256,7 @@ def find_nearest_point_distance_coord(point, collections):
 
     return nearestpoint
 
+
 def mapping_floors_nearst_point_coord(collections1, collections2):
     distances = {}
     for collection_1 in collections1:
@@ -219,10 +269,135 @@ def mapping_floors_nearst_point_coord(collections1, collections2):
     print(f"numarul de puncte vazute ca cele mai apropiate {len(distances_set)}")
 
 
-
-def f_add_noise(collections, range_value = 0.5):
+def f_add_noise(collections, range_value=0.5):
     for collection in collections:
         collection['real_coordinates'][0] += random.uniform(-range_value, range_value)
         collection['real_coordinates'][1] += random.uniform(-range_value, range_value)
         collection['real_coordinates'][2] += random.uniform(-range_value, range_value)
     return collections
+
+
+# folosesc cate un punct din fiecare etaj pentru a sorta punctele
+# punctul 0, care sunt considerate cele mai apropiate
+# nu pot tine cont de directie, adica daca e primul sau ultimul etaj
+def order_floors_using_only_one_points_per_floor(points):
+    similarities, count_floors = compute_mds_wifi_similarity(points, cosine, 'All')
+    similarities_2 = similarities.copy()
+    distances = [points[0]['floor_id']]
+    i = 0
+    while 1:
+        similarities_2[i][i] = 2.
+        min_value = numpy.min(similarities_2[i])
+        min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+        x = numpy.where(distances == points[min_index]['floor_id'])
+        if len(x[0]) == 0:
+            distances = numpy.append(distances, points[min_index]['floor_id'])
+            i = min_index
+            similarities_2[i][min_index] = 2.
+        else:
+            similarities_2[i][min_index] = 2.
+            min_value = numpy.min(similarities_2[i])
+            min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+            x = numpy.where(distances == points[min_index]['floor_id'])
+            if len(x[0]) == 0:
+                distances = numpy.append(distances, points[min_index]['floor_id'])
+                i = min_index
+                similarities_2[i][min_index] = 2.
+            else:
+                break
+    i = 1
+    while 1:
+        min_value = numpy.min(similarities_2[i])
+        min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+        x = numpy.where(distances == points[min_index]['floor_id'])
+        if len(x[0]) == 0:
+            distances = numpy.insert(distances, 0, points[min_index]['floor_id'])
+            i = min_index
+            print(f'{points[min_index]["floor_id"]} -> {min_index} ->{min_value}')
+            similarities_2[i][min_index] = 2.
+        else:
+            similarities_2[i][min_index] = 2.
+            min_value = numpy.min(similarities_2[i])
+            min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+            x = numpy.where(distances == points[min_index]['floor_id'])
+            if len(x[0]) == 0:
+                distances = numpy.insert(distances, 0, points[min_index]['floor_id'])
+                i = min_index
+                print(f'{points[min_index]["floor_id"]} -> {min_index} ->{min_value}')
+                similarities_2[i][min_index] = 2.
+            else:
+                break
+
+    print(distances)
+    return distances
+
+
+def order_floors_using_all_points(points, similarities):
+    similarities_2 = similarities.copy()
+
+    i = 0
+    distances = [points[i]['floor']]
+
+    while 1:
+        x = [index for index in range(len(points)) if points[index]['floor'] == points[i]['floor']]
+        for index in x:
+            similarities_2[i][index] = 2.
+        min_value = numpy.min(similarities_2[i])
+        min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+        x = numpy.where(distances == points[min_index]['floor'])
+        if len(x[0]) == 0:
+            distances = numpy.append(distances, points[min_index]['floor'])
+            x = [index for index in range(len(points)) if points[index]['floor'] == points[min_index]['floor']]
+            for index in x:
+                similarities_2[i][index] = 2.
+            i = min_index
+        else:
+            x = [index for index in range(len(points)) if points[index]['floor'] == points[min_index]['floor']]
+            for index in x:
+                similarities_2[i][index] = 2.
+            min_value = numpy.min(similarities_2[i])
+            min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+            x = numpy.where(distances == points[min_index]['floor'])
+            if len(x[0]) == 0:
+                distances = numpy.append(distances, points[min_index]['floor'])
+                similarities_2[i][min_index] = 2.
+                i = min_index
+            else:
+                break
+    # i = 0
+    # while 1:
+    #     x = [index for index in range(len(points)) if points[index]['floor_id'] == points[i]['floor_id']]
+    #     for index in x:
+    #         similarities_2[i][index] = 2.
+    #     min_value = numpy.min(similarities_2[i])
+    #     min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+    #     x = numpy.where(distances == points[min_index]['floor_id'])
+    #     if len(x[0]) == 0:
+    #         distances = numpy.insert(distances, 0, points[min_index]['floor_id'])
+    #         x = [index for index in range(len(points)) if points[index]['floor_id'] == points[min_index]['floor_id']]
+    #         for index in x:
+    #             similarities_2[i][index] = 2.
+    #         i = min_index
+    #     else:
+    #         similarities_2[i][min_index] = 2.
+    #         min_value = numpy.min(similarities_2[i])
+    #         min_index = numpy.where(np.isclose(similarities_2[i], min_value))[0][0]
+    #         x = numpy.where(distances == points[min_index]['floor_id'])
+    #         if len(x[0]) == 0:
+    #             distances = numpy.insert(distances, 0, points[min_index]['floor_id'])
+    #             x = [index for index in range(len(points)) if
+    #                  points[index]['floor_id'] == points[min_index]['floor_id']]
+    #             for index in x:
+    #                 similarities_2[i][index] = 2.
+    #             i = min_index
+    #         else:
+    #             break
+
+    return distances
+
+
+def set_right_floor_id(points, order):
+    for i in range(len(order)):
+        x = [index for index in range(len(points)) if points[index]['floor'] == order[i]]
+        for index in x:
+            points[index]['floor_id'] = i

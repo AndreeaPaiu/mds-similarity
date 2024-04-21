@@ -46,34 +46,34 @@ def plot_mds(collections, simil_method=braycurtis, n_dim=2, xlabel='Dimensiunea1
     if check_one:
         count_one = 0
         v = []
-        # for i in similarities:
-        #     for j in i:
-        #         if j != 0:
-        #             v.append(j)
-        #         if j > 0.999 and j < 1.001:
-        #             count_one += 1
-
-
-        for i in range(len(similarities)):
-            for j in range(len(similarities[i])):
-                if j != i:
-                    v.append(similarities[i][j])
-                if similarities[i][j] > 0.999 and similarities[i][j] < 1.001:
+        for i in similarities:
+            for j in i:
+                if j != 0:
+                    v.append(j)
+                if j > 0.999 and j < 1.001:
                     count_one += 1
 
-        print(f"similaritati de 1: {count_one}")
-        print(f"max = {max(v)}; mean = {numpy.mean(v)}; std={numpy.std(v)}; min = {min(v)}")
-
-    fig = plt.figure()
-    plt.title('Similaritati parter')
-    plt.xlabel('similaritate')
-    plt.ylabel('frecventa')
-    plt.hist(v, bins=100, color='skyblue', edgecolor='black')
-    fig.savefig('images/raport-2/histograma-similaritaty.png', bbox_inches='tight')
-
-    plt.show()
-
-    exit()
+    #
+    #     for i in range(len(similarities)):
+    #         for j in range(len(similarities[i])):
+    #             if j != i:
+    #                 v.append(similarities[i][j])
+    #             if similarities[i][j] > 0.999 and similarities[i][j] < 1.001:
+    #                 count_one += 1
+    #
+    #     print(f"similaritati de 1: {count_one}")
+    #     print(f"max = {max(v)}; mean = {numpy.mean(v)}; std={numpy.std(v)}; min = {min(v)}")
+    #
+    # fig = plt.figure()
+    # plt.title('Similaritati parter')
+    # plt.xlabel('similaritate')
+    # plt.ylabel('frecventa')
+    # plt.hist(v, bins=100, color='skyblue', edgecolor='black')
+    # fig.savefig('images/raport-2/histograma-similaritaty.png', bbox_inches='tight')
+    #
+    # plt.show()
+    #
+    # exit()
 
     # Crearea unui obiect MDS cu n dimensiuni
     # metric = False => valorile de 0 sunt cosidetare valori lipsa
