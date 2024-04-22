@@ -1,7 +1,15 @@
 #%%
+import copy
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+DATA_0_FILE = 'C:\\Users\\paiua\\Desktop\\work_project\\cercetare\\mds-similarity\\test-mds\\coords_mds_real_data\\data0.csv'
+DATA_1_FILE = 'C:\\Users\\paiua\\Desktop\\work_project\\cercetare\\mds-similarity\\test-mds\\coords_mds_real_data\\data1.csv'
+
+columns = ['idx', 'mds_x', 'mds_y', 'mds_z', 'x', 'y', 'z']
+sim_data_0 = np.genfromtxt(DATA_0_FILE, delimiter=',', skip_header=1, names=columns, dtype=None)
+sim_data_1 = np.genfromtxt(DATA_1_FILE, delimiter=',', skip_header=1, names=columns, dtype=None)
 #%%
 # icp_known_corresp: performs icp given that the input datasets
 # are aligned so that Line1(:, QInd(k)) corresponds to Line2(:, PInd(k))
@@ -57,8 +65,8 @@ def show_figure(Line1, Line2, title=""):
     plt.scatter(Line2[0], Line2[1], s=1, label='Line 2')
     plt.title(title)
 
-    plt.xlim([-8, 8])
-    plt.ylim([-8, 8])
+    plt.xlim([-1, 1])
+    plt.ylim([-1, 1])
     plt.legend()  
 
     plt.show()
@@ -93,8 +101,27 @@ def update_figure(fig, line1_fig, line2_fig, Line1, Line2, hold=False):
 
 
 Data = np.load('icp_data.npz')
-Line1 = Data['LineGroundTruth']
-Line2 = Data['LineMovedCorresp']
+# Line1 = Data['LineGroundTruth']
+# Line2 = Data['LineMovedCorresp']
+# print(type(Line1))
+Line1 = copy.deepcopy(sim_data_0)
+Line2 = copy.deepcopy(sim_data_1)
+
+x_1 = []
+y_1 = []
+for i in Line1:
+    x_1 = x_1 + [i['mds_x']]
+    y_1 = y_1 + [i['mds_y']]
+
+Line1 = np.array([x_1, y_1])
+
+x_2 = []
+y_2 = []
+for i in Line2:
+    x_2 = x_2 + [i['mds_x']]
+    y_2 = y_2 + [i['mds_y']]
+
+Line2 = np.array([x_2, y_2])
 
 # Show the initial positions of the lines
 show_figure(Line1, Line2, "initial")
@@ -104,8 +131,8 @@ show_figure(Line1, Line2, "initial")
 l = len(Line1[0])
 # QInd = np.arange(1, l, int(l/2))
 # PInd = np.arange(1, l, int(l/2))
-QInd = [1,51]
-PInd = [1, 51]
+QInd = [1, 2]
+PInd = [1, 2]
 
 
 
