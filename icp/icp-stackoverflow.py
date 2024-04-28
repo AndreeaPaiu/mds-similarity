@@ -72,6 +72,8 @@ def show_figure(Line1, Line2, Line3):
 
     for i in range(len(Line1[0])):
         plt.plot([Line1[0][i], Line2[0][i]], [Line1[1][i], Line2[1][i]], 'o-')
+        plt.text(Line1[0][i]-0.015, Line1[1][i]+0.25, f"{i}")
+        plt.text(Line2[0][i]-0.050, Line2[1][i]-0.25, f"{i}")
 
 #     plt.scatter(Line1[0], Line1[1], marker='o', s=3, label='Set of Points 1')
 #     plt.scatter(Line2[0], Line2[1], marker='o', s=2, label='Set of Points 2')
