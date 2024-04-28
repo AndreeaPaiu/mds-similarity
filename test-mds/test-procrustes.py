@@ -14,33 +14,30 @@ sim_data_0 = np.genfromtxt(DATA_0_FILE, delimiter=',', skip_header=1, names=colu
 sim_data_1 = np.genfromtxt(DATA_1_FILE, delimiter=',', skip_header=1, names=columns, dtype=None)
 sim_data_2 = np.genfromtxt(DATA_2_FILE, delimiter=',', skip_header=1, names=columns, dtype=None)
 Line1 = copy.deepcopy(sim_data_0)
+Line2 = copy.deepcopy(sim_data_1)
+Line3 = copy.deepcopy(sim_data_2)
 
 matrix1 = []
-realmatrix1 = []
+# realmatrix1 = []
 
 for i in Line1:
     matrix1.append([i['mds_x'], i['mds_y']])
-    realmatrix1.append([i['x'], i['y']])
+#     realmatrix1.append([i['x'], i['y']])
 
 matrix1 = np.array(matrix1)
-realmatrix1 = np.array(realmatrix1)
-print(matrix1)
+# realmatrix1 = np.array(realmatrix1)
 
-# x_2 = []
-# y_2 = []
-# for i in Line2:
-#     x_2 = x_2 + [i['mds_x']]
-#     y_2 = y_2 + [i['mds_y']]
-#
-# Line2 = np.array([x_2, y_2])
-#
-# x_3 = []
-# y_3 = []
-# for i in Line3:
-#     x_3 = x_3 + [i['mds_x']]
-#     y_3 = y_3 + [i['mds_y']]
+matrix2 = []
+for i in Line2:
+    matrix2.append([i['mds_x'], i['mds_y']])
 
-# Line3 = np.array([x_3, y_3])
+matrix2 = np.array(matrix2)
+
+matrix3 = []
+for i in Line3:
+    matrix3.append([i['mds_x'], i['mds_y']])
+
+matrix3 = np.array(matrix3)
 
 # Generate two sets of 2D points as matrices
 # matrix1 = np.array([[1, 0], [2, 0], [2, 1], [1, 1], [1, 0]])
@@ -53,10 +50,10 @@ print(matrix1)
 #
 # mtx2_aligned = matrix2@R.T
 
-mtx1, mtx2, disparity = procrustes(matrix1, realmatrix1)
+mtx1, mtx2, disparity = procrustes(matrix1, matrix2)
 # print('1')
 # print(mtx1)
-# mtx1, mtx3, disparity = procrustes(matrix1, matrix3)
+mtx1, mtx3, disparity = procrustes(matrix1, matrix3)
 # print('2')
 # print(mtx1)
 # mtx1, mtx4, disparity = procrustes(matrix1, matrix4)
@@ -70,8 +67,8 @@ fig = plt.figure()
 # Plot original matrices
 plt.subplot(1, 2, 1)
 plt.plot(matrix1[:, 0], matrix1[:, 1], 'bo-', label='Matrix 1')
-plt.plot(realmatrix1[:, 0], realmatrix1[:, 1], 'ro-', label='Matrix 2')
-# plt.plot(matrix3[:, 0], matrix3[:, 1], 'go-', label='Matrix 3')
+plt.plot(matrix2[:, 0], matrix2[:, 1], 'ro-', label='Matrix 2')
+plt.plot(matrix3[:, 0], matrix3[:, 1], 'go-', label='Matrix 3')
 # plt.plot(matrix4[:, 0], matrix4[:, 1], 'yo-', label='Matrix 4')
 plt.axis('equal')
 plt.title('Original Matrices')
@@ -79,17 +76,13 @@ plt.legend()
 
 # Plot aligned matrices
 plt.subplot(1, 2, 2)
-for i in range(len(mtx1)):
-    plt.plot([mtx1[i][0], mtx2[i][0]], [mtx1[i][1], mtx2[i][1]], 'o-')
-    plt.text(mtx1[i][0]-0.00015, mtx1[i][1]+0.0025, f"{i}")
-    plt.text(mtx2[i][0]-0.00050, mtx2[i][1]-0.0025, f"{i}")
-# plt.plot(mtx1[:, 0], mtx1[:, 1], 'bo-', label='Matrix 1 Aligned')
-# plt.plot(mtx2[:, 0], mtx2[:, 1], 'ro-', label='Matrix 2 Aligned')
-# plt.plot(mtx3[:, 0], mtx3[:, 1], 'go-', label='Matrix 3 Aligned')
+plt.plot(mtx1[:, 0], mtx1[:, 1], 'bo-', label='Matrix 1 Aligned')
+plt.plot(mtx2[:, 0], mtx2[:, 1], 'ro-', label='Matrix 2 Aligned')
+plt.plot(mtx3[:, 0], mtx3[:, 1], 'go-', label='Matrix 3 Aligned')
 # plt.plot(mtx4[:, 0], mtx4[:, 1], 'yo-', label='Matrix 4 Aligned')
 plt.axis('equal')
 plt.title('Aligned Matrices')
 plt.legend()
 
 plt.show()
-fig.savefig("../test-mds/images/raport-2/procrustes_test_floor2_mds1_real_coord.png", bbox_inches='tight')
+fig.savefig("../test-mds/images/raport-2/procrustes_test_floor2_mds3.png", bbox_inches='tight')
