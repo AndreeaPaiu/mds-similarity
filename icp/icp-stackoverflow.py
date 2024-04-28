@@ -70,9 +70,12 @@ def compute_error(Q, OptimizedPoints):
 # simply show the two lines
 def show_figure(Line1, Line2, Line3):
 
-    plt.scatter(Line1[0], Line1[1], marker='o', s=3, label='Set of Points 1')
-    plt.scatter(Line2[0], Line2[1], marker='o', s=2, label='Set of Points 2')
-    plt.scatter(Line3[0], Line3[1], marker='o', s=1, label='Set of Points 3')
+    for i in range(len(Line1[0])):
+        plt.plot([Line1[0][i], Line2[0][i]], [Line1[1][i], Line2[1][i]], 'o-')
+
+#     plt.scatter(Line1[0], Line1[1], marker='o', s=3, label='Set of Points 1')
+#     plt.scatter(Line2[0], Line2[1], marker='o', s=2, label='Set of Points 2')
+#     plt.scatter(Line3[0], Line3[1], marker='o', s=1, label='Set of Points 3')
 
 #     plt.xlim([-8, 8])
 #     plt.ylim([-8, 8])
@@ -89,17 +92,16 @@ Line3 = copy.deepcopy(sim_data_2)
 
 x_1 = []
 y_1 = []
+rx_1 = []
+ry_1 = []
 for i in Line1:
-    x_1 = x_1 + [i['mds_x']]
-    y_1 = y_1 + [i['mds_y']]
+    x_1 = x_1 + [i['mds_x']*15]
+    y_1 = y_1 + [i['mds_y']*15]
+    rx_1 = rx_1 + [i['x']]
+    ry_1 = ry_1 + [i['y']]
 
 Line1 = np.array([x_1, y_1])
-
-for i in Line1:
-    x_1 = x_1 + [i['x']]
-    y_1 = y_1 + [i['y']]
-
-RealLine1 = np.array([x_1, y_1])
+RealLine1 = np.array([rx_1, ry_1])
 
 x_2 = []
 y_2 = []
@@ -119,10 +121,10 @@ Line3 = np.array([x_3, y_3])
 
 # We assume that the there are 1 to 1 correspondences for this data
 QInd = np.arange(len(Line1[0]))
-PInd = np.arange(len(Line2[0]))
+PInd = np.arange(len(RealLine1[0]))
 
 # Perform icp given the correspondences
-[Line2_r, E] = icp_known_corresp(Line1, Line2, QInd, PInd)
+[Line2_r, E] = icp_known_corresp(Line1, RealLine1, QInd, PInd)
 
 QInd = np.arange(len(Line1[0]))
 PInd = np.arange(len(Line3[0]))
@@ -130,23 +132,32 @@ PInd = np.arange(len(Line3[0]))
 # Perform icp given the correspondences
 [Line3_r, E] = icp_known_corresp(Line1, Line3, QInd, PInd)
 
+
+
+
+
+
 fig = plt.figure()
 # Show the initial positions of the lines
 
 plt.subplot(1, 2, 1)
 
-show_figure(Line1, Line2, Line3)
+# show_figure(Line1, RealLine1, Line3)
+plt.scatter(Line1[0], Line1[1], marker='o', s=3, label='Set of Points 1')
+plt.scatter(RealLine1[0], RealLine1[1], marker='o', s=2, label='Real Set of Points 2')
+plt.axis('equal')
 plt.title("initial positions of the points")
 plt.legend()
 # Show the adjusted positions of the lines
 
 plt.subplot(1, 2, 2)
 show_figure(Line1, Line2_r, Line3_r)
+
 plt.title("adjusted positions of the points")
 plt.legend()
 
 plt.show()
-fig.savefig("../test-mds/images/raport-2/icp_test_floor2_mds3.png", bbox_inches='tight')
+fig.savefig("../test-mds/images/raport-2/icp_test_floor2_mds1_real_coord.png", bbox_inches='tight')
 
 # print the error
 print('Error value is: ', E)
