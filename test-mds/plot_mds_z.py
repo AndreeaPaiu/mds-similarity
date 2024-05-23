@@ -36,7 +36,7 @@ def plot_mds_z(collections, simil_method=cosine, n_dim=2, xlabel='Dimensiunea1',
     # pentru a fi sigura ca punctele pot fi random
     # am nevoie de primul punct pentru ordonarea etajelor
     first_point = collections[0].copy()
-    random.shuffle(collections)
+#     random.shuffle(collections)
     collections = [first_point] + collections
 
     # compute 3D similarities
@@ -64,26 +64,46 @@ def plot_mds_z(collections, simil_method=cosine, n_dim=2, xlabel='Dimensiunea1',
             floors_collections[collection['floor_id']] = []
         floors_collections[collection['floor_id']].append(collection)
 
+    _, s = compute_rotation_and_scale(floors_collections[0], simil_method, selection)
+
     # asamblez atajele
     ref_coordinates_2D = None
     ref_collection = None
-    coordinates = []
+
+    coordinates = compute_2D_mds(
+            floors_collections[0],
+            simil_method=simil_method,
+            ref_coordinates=ref_coordinates_2D,
+            selection=selection,
+            type_data=type_data,
+            ref_collection=ref_collection,
+            first_collection=True,
+            scale=s
+        )
+
+
+    ref_coordinates_2D = coordinates
     for i in floors_collections:
+        if i == 0:
+            continue
+        ref_collection_id = mapping_floors_nearst_point_distance([floors_collections[i - 1][0], floors_collections[i - 1][1], floors_collections[i - 1][2], floors_collections[i - 1][3]], floors_collections[i])
+
         data_coordinates = compute_2D_mds(
             floors_collections[i],
             simil_method=simil_method,
             ref_coordinates=ref_coordinates_2D,
             selection=selection,
             type_data=type_data,
-            ref_collection=ref_collection
+            ref_collection=ref_collection_id,
+            scale=s
         )
+
+        ref_coordinates_2D = data_coordinates
+
         coordinates = coordinates + data_coordinates
-        preprocessing_file.write_csv_mds_and_real_coord(data_coordinates, floors_collections[i])
+#         preprocessing_file.write_csv_mds_and_real_coord(data_coordinates, floors_collections[i])
 
-
-    np.savetxt("data3.csv", coordinates,
-                  delimiter=" ")
-    exit()
+#     exit()
     # print(coordinates)
     # exit()
     # ref_coordinates_2D = None
@@ -124,13 +144,13 @@ def plot_mds_z(collections, simil_method=cosine, n_dim=2, xlabel='Dimensiunea1',
         ax.set_ylabel(ylabel)
         ax.set_zlabel(zlabel)
 
-        for i, (x, y, z) in enumerate(coordinates):
+        for i, (x, y, z, label) in enumerate(coordinates):
             ax.scatter(x, y, z, color=colors[int(z)], label=f'Line {z}')
 
         if add_label:
-            for i, (x, y, z) in enumerate(coordinates):
+            for i, (x, y, z, label) in enumerate(coordinates):
                 # ax.text(x + .03, y + .03,  z + .03, f" {i % len(floors_collections[collections[i]['floor']])}", fontsize=9)
-                ax.text(x + .03, y + .03, z + .03, f'{z}',
+                ax.text(x + .03, y + .03, z + .03, f'{label}',
                         fontsize=9)
 
     plt.title(title)

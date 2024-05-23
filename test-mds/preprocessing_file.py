@@ -129,10 +129,8 @@ def preprocessing_required_data(absolut_path, file_name, floor):
 def write_csv_mds_and_real_coord(coord_mds, coord_real):
     for i in range(len(coord_mds)):
         coord_mds[i] = coord_mds[i] + coord_real[i]['real_coordinates']
-    # np.savetxt(f"coords_mds_real_data/data{coord_real[0]['floor_id']}.csv", coord_mds,
-    #            delimiter=" ")
 
     DF = pd.DataFrame(coord_mds)
 
     # save the dataframe as a csv file
-    DF.to_csv(f"coords_mds_real_data/data{coord_real[0]['floor_id']}.csv")
+    DF.to_csv(f"coords_mds_real_data/data{coord_real[0]['floor_id']}-redmi-3.csv")

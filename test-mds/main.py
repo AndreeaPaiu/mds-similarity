@@ -32,6 +32,7 @@ from pearsonr_similarity import *
 from plot_mds_z import *
 from helpers import f_add_noise
 import copy
+from test_step_1 import *
 
 absolut_path = ""
 simil_methods = [braycurtis, cosine, pearsonr_similarity, correlation, yule]
@@ -51,6 +52,12 @@ if __name__ == '__main__':
         preprocessing_files_data.append(file_data)
         merged_data += file_data
 
+#     start(
+#         preprocessing_files_data[0],
+#         preprocessing_files_data[2],
+#         simil_method=cosine,
+#         selection='All',  # Comm
+#         )
     #
     # # Define two sets of points as numpy arrays
     # points1 = np.array([[1, 2], [3, 4], [5, 6]])
@@ -90,10 +97,10 @@ if __name__ == '__main__':
     # exit()
 
     # print(merged_data)
-    # mapping_floors_nearst_point_similarity(preprocessing_files_data[12], preprocessing_files_data[14])
-    # mapping_floors_nearst_point_distance(preprocessing_files_data[2], preprocessing_files_data[4])
-    # mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
-
+#     mapping_floors_nearst_point_similarity(preprocessing_files_data[12], preprocessing_files_data[14])
+#     mapping_floors_nearst_point_distance([preprocessing_files_data[12][0], preprocessing_files_data[12][1], preprocessing_files_data[12][2], preprocessing_files_data[12][3]], preprocessing_files_data[14])
+#     mapping_floors_nearst_point_coord(preprocessing_files_data[2], preprocessing_files_data[4])
+#     exit()
     # order_floors_using_only_one_points_per_floor(
     #             [preprocessing_files_data[0][0],
     #               preprocessing_files_data[2][0],
@@ -126,14 +133,14 @@ if __name__ == '__main__':
     # )
 
     plot_mds_z(
-        preprocessing_files_data[0] + preprocessing_files_data[1] +
-        preprocessing_files_data[2] + preprocessing_files_data[3] +
-        preprocessing_files_data[4] + preprocessing_files_data[5] +
-        preprocessing_files_data[6] + preprocessing_files_data[7] +
-        preprocessing_files_data[8] + preprocessing_files_data[9] +
-        preprocessing_files_data[10] + preprocessing_files_data[11] +
-        preprocessing_files_data[12] + preprocessing_files_data[13] +
-        preprocessing_files_data[14] + preprocessing_files_data[15],
+        preprocessing_files_data[1] + # preprocessing_files_data[1] +
+        preprocessing_files_data[3] + # preprocessing_files_data[3] +
+        preprocessing_files_data[5] + # preprocessing_files_data[5] +
+        preprocessing_files_data[7] + # preprocessing_files_data[7] +
+        preprocessing_files_data[9] + # preprocessing_files_data[9] +
+        preprocessing_files_data[11] + # preprocessing_files_data[11] +
+        preprocessing_files_data[13] + # preprocessing_files_data[13] +
+        preprocessing_files_data[15], # + preprocessing_files_data[15],
         simil_method=cosine,
         n_dim=3,
         xlabel='Dimensiunea1',

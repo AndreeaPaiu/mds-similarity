@@ -28,7 +28,6 @@ def icp_known_corresp(Line1, Line2, QInd, PInd):
     # applying found rotation and translation to them
     NewLine = R @ P + t[:, None]
 
-    
     E = compute_error(Q, NewLine)
     return [NewLine, E, R, t]
 
@@ -61,12 +60,13 @@ def compute_error(Q, OptimizedPoints):
 # simply show the two lines
 def show_figure(Line1, Line2, title=""):
     plt.figure()
-    plt.scatter(Line1[0], Line1[1], marker='o', s=2, label='Line 1')
-    plt.scatter(Line2[0], Line2[1], s=1, label='Line 2')
+    # plt.scatter(Line1[0], Line1[1], marker='o', s=2, label='Line 1')
+    plt.scatter(Line2[0], Line2[1], marker='x', s=4, label='Line 2')
     plt.title(title)
 
-    plt.xlim([-1, 1])
-    plt.ylim([-1, 1])
+    # plt.xlim([-1, 1])
+    # plt.ylim([-1, 1])
+    plt.axis('equal')
     plt.legend()  
 
     plt.show()
@@ -101,27 +101,27 @@ def update_figure(fig, line1_fig, line2_fig, Line1, Line2, hold=False):
 
 
 Data = np.load('icp_data.npz')
-# Line1 = Data['LineGroundTruth']
-# Line2 = Data['LineMovedCorresp']
+Line1 = Data['LineGroundTruth']
+Line2 = Data['LineMovedCorresp']
 # print(type(Line1))
-Line1 = copy.deepcopy(sim_data_0)
-Line2 = copy.deepcopy(sim_data_1)
+# Line1 = copy.deepcopy(sim_data_0)
+# Line2 = copy.deepcopy(sim_data_1)
+#
+# x_1 = []
+# y_1 = []
+# for i in Line1:
+#     x_1 = x_1 + [i['mds_x']]
+#     y_1 = y_1 + [i['mds_y']]
+#
+# Line1 = np.array([x_1, y_1])
+#
+# x_2 = []
+# y_2 = []
+# for i in Line2:
+#     x_2 = x_2 + [i['mds_x']]
+#     y_2 = y_2 + [i['mds_y']]
 
-x_1 = []
-y_1 = []
-for i in Line1:
-    x_1 = x_1 + [i['mds_x']]
-    y_1 = y_1 + [i['mds_y']]
-
-Line1 = np.array([x_1, y_1])
-
-x_2 = []
-y_2 = []
-for i in Line2:
-    x_2 = x_2 + [i['mds_x']]
-    y_2 = y_2 + [i['mds_y']]
-
-Line2 = np.array([x_2, y_2])
+# Line2 = np.array([x_2, y_2])
 
 # Show the initial positions of the lines
 show_figure(Line1, Line2, "initial")
@@ -129,15 +129,16 @@ show_figure(Line1, Line2, "initial")
 
 # We assume that the there are 1 to 1 correspondences for this data
 l = len(Line1[0])
-# QInd = np.arange(1, l, int(l/2))
-# PInd = np.arange(1, l, int(l/2))
-QInd = [1, 2]
-PInd = [1, 2]
+QInd = np.arange(1, l, int(l/2))
+PInd = np.arange(1, l, int(l/2))
+# QInd = [1, 2, 3, 4, 5, 6]
+# PInd = [1, 2, 3, 4, 5, 6]
 
 
 
 # Perform icp given the correspondences
 [Line3, E, R, t] = icp_known_corresp(Line1, Line2, QInd, PInd)
+print(Line3)
 
 # Show the adjusted positions of the lines
 show_figure(Line1, Line3, "registered")

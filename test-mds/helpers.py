@@ -12,6 +12,7 @@ from compute_mds_wifi_similarity import *
 from compute_mds_cartesian import *
 from scipy.spatial.distance import cosine
 from sklearn.decomposition import PCA
+from scipy.linalg import orthogonal_procrustes
 
 colors = []
 for color in matplotlib.colors.TABLEAU_COLORS:
@@ -55,7 +56,7 @@ def order_floor_collection(collections):
     exit()
 
 
-def compute_2D_mds(collections, simil_method, ref_coordinates=None, selection='All', type_data='wifi', ref_collection=None):
+def compute_2D_mds(collections, simil_method, ref_coordinates=None, selection='All', type_data='wifi', ref_collection=None, first_collection=False, scale=23):
     floor_id = int(collections[0]['floor_id'])
     similarities = []
     mtx = []
@@ -72,18 +73,43 @@ def compute_2D_mds(collections, simil_method, ref_coordinates=None, selection='A
 
     # Aplicarea MDS pe matricea de similarități
     coordinates = mds.fit_transform(similarities)
+    print(first_collection)
+    print(ref_coordinates)
+    print(ref_collection)
 
+    if not first_collection:
+        mtx_r1 = np.array([ref_coordinates[ref_collection[0][0]][0:2], ref_coordinates[ref_collection[1][0]][0:2], ref_coordinates[ref_collection[2][0]][0:2], ref_coordinates[ref_collection[3][0]][0:2]])
+        mtx_r2 = np.array([coordinates[ref_collection[0][1]], coordinates[ref_collection[1][1]], coordinates[ref_collection[2][1]], coordinates[ref_collection[3][1]]])
+
+        # centrat in (0,0)
+        media = np.mean(mtx_r1, axis = 0)
+        mtx_r1 = mtx_r1 - media
+
+        rotation, _ = orthogonal_procrustes(mtx_r1, mtx_r2)
+    else:
+        mtx_r1 = np.array([collections[0]['real_coordinates'][0:2], collections[12]['real_coordinates'][0:2], collections[25]['real_coordinates'][0:2], collections[37]['real_coordinates'][0:2]])
+        mtx_r2 = np.array([coordinates[0], coordinates[12], coordinates[25], coordinates[37]])
+
+        # centrat in (0,0)
+        media = np.mean(mtx_r1, axis = 0)
+        mtx_r1 = mtx_r1 - media
+
+        rotation, _ = orthogonal_procrustes(mtx_r1, mtx_r2)
+
+    coordinates = coordinates@rotation.T
+    coordinates = coordinates * scale
     # align points
     # align_points_coordinates = []
     # if ref_coordinates is not None and ref_collection is not None:
     #     mtx, align_points_coordinates, disparity = align_points(ref_collection, collections, ref_coordinates, coordinates)
 
     new_coords = []
-    for coord in coordinates:
+    for i in range(len(coordinates)):
         new_coords.append([
-            coord[0],
-            coord[1],
-            floor_id
+            coordinates[i][0],
+            coordinates[i][1],
+            floor_id,
+            collections[i]['label_id']
         ])
 
     # return new_coords, coordinates, mtx
@@ -122,8 +148,6 @@ def mapping_floors_nearst_point_similarity(collections1, collections2, simil_met
         print(collection_1['label_id'])
         similarities[collection_1['label_id']] = \
         find_nearest_point_similarity(collection_1, collections2, simil_method, selection)['label_id']
-        print(similarities[collection_1['label_id']])
-        exit()
     print(similarities)
 
     similarities_set = set()
@@ -133,6 +157,7 @@ def mapping_floors_nearst_point_similarity(collections1, collections2, simil_met
 
     print(similarities_set)
     print(f"numarul de puncte vazute ca cele mai apropiate {len(similarities_set)}")
+    exit()
 
 
 # distanta folosit coordonatele de la mds
@@ -215,6 +240,7 @@ def mapping_floors_nearst_point_distance(collections1, collections2, simil_metho
     # line['1'] = distances[i]['coord']
     # lines_coords.append(line)
     # ploting_3D(coordinates, merge_data)
+    print(distances_array)
     return distances_array
 
 
@@ -401,3 +427,27 @@ def set_right_floor_id(points, order):
         x = [index for index in range(len(points)) if points[index]['floor'] == order[i]]
         for index in x:
             points[index]['floor_id'] = i
+
+def compute_rotation_and_scale(collection, simil_method=cosine, selection='All'):
+    # Matricea de similarități între puncte( cate un etaj)
+    similarities, count_floors = compute_mds_wifi_similarity(collection, simil_method, selection)
+
+    # Crearea unui obiect MDS cu n dimensiuni
+    mds = MDS(n_components=2, dissimilarity='precomputed')
+
+    # Aplicarea MDS pe matricea de similarități
+    coordinates = mds.fit_transform(similarities)
+
+    mtx_r1 = np.array([collection[0]['real_coordinates'][0:2], collection[12]['real_coordinates'][0:2], collection[25]['real_coordinates'][0:2], collection[37]['real_coordinates'][0:2]])
+    mtx_r2 = np.array([coordinates[0], coordinates[12], coordinates[25], coordinates[37]])
+
+    # centrat in (0,0)
+    media = np.mean(mtx_r1, axis = 0)
+    mtx_r1 = mtx_r1 - media
+
+    R, s = orthogonal_procrustes(mtx_r1, mtx_r2)
+
+    std1 = np.std(mtx_r2)
+    std2 = np.std(mtx_r1)
+
+    return R, std2 / std1
