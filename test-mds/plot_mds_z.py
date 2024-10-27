@@ -87,7 +87,7 @@ def plot_mds_z(collections, simil_method=cosine, n_dim=2, xlabel='Dimensiunea1',
         if i == 0:
             continue
         ref_collection_id = mapping_floors_nearst_point_distance([floors_collections[i - 1][0], floors_collections[i - 1][1], floors_collections[i - 1][2], floors_collections[i - 1][3]], floors_collections[i])
-
+        _, s = compute_rotation_and_scale(floors_collections[i], simil_method, selection)
         data_coordinates = compute_2D_mds(
             floors_collections[i],
             simil_method=simil_method,

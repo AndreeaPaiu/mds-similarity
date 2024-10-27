@@ -4,6 +4,10 @@ import sys
 
 import numpy as np
 import pandas as pd
+from sklearn.manifold import MDS
+from compute_mds_wifi_similarity import *
+from scipy.spatial.distance import braycurtis, cosine, correlation, yule
+
 
 
 def read_json_file(absolut_path, file_name):
@@ -134,3 +138,37 @@ def write_csv_mds_and_real_coord(coord_mds, coord_real):
 
     # save the dataframe as a csv file
     DF.to_csv(f"coords_mds_real_data/data{coord_real[0]['floor_id']}-redmi-3.csv")
+
+def write_csv_mds(points):
+
+    # Crearea unui obiect MDS cu n dimensiuni
+    mds = MDS(n_components=2, dissimilarity='precomputed')
+    similarities, count_floors = compute_mds_wifi_similarity(points, cosine, 'All')
+
+#     ones = 0
+#
+#     for i in similarities:
+#         for j in i:
+#             if j == 1:
+#                 ones += 1
+
+    print(ones)
+    exit()
+    coordinates = mds.fit_transform(similarities)
+
+    coord_mds = []
+
+    for i in range(len(coordinates)):
+        coord_mds.append([
+            coordinates[i][0],
+            coordinates[i][1]
+        ])
+
+    # Aplicarea MDS pe matricea de similarități
+    coordinates = mds.fit_transform(similarities)
+
+    DF = pd.DataFrame(coord_mds)
+
+    # save the dataframe as a csv file
+    DF.to_csv(f"raport-3/coords_mds_data/data-andreea-4.csv")
+

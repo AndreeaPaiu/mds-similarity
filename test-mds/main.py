@@ -33,6 +33,7 @@ from plot_mds_z import *
 from helpers import f_add_noise
 import copy
 from test_step_1 import *
+from test_hist import *
 
 absolut_path = ""
 simil_methods = [braycurtis, cosine, pearsonr_similarity, correlation, yule]
@@ -52,6 +53,10 @@ if __name__ == '__main__':
         preprocessing_files_data.append(file_data)
         merged_data += file_data
 
+
+    write_csv_mds(preprocessing_files_data[0])
+#     get_hist_only_mds()
+    exit()
 #     start(
 #         preprocessing_files_data[0],
 #         preprocessing_files_data[2],
@@ -133,28 +138,28 @@ if __name__ == '__main__':
     # )
 
     plot_mds_z(
-        preprocessing_files_data[1] + # preprocessing_files_data[1] +
-        preprocessing_files_data[3] + # preprocessing_files_data[3] +
-        preprocessing_files_data[5] + # preprocessing_files_data[5] +
-        preprocessing_files_data[7] + # preprocessing_files_data[7] +
-        preprocessing_files_data[9] + # preprocessing_files_data[9] +
-        preprocessing_files_data[11] + # preprocessing_files_data[11] +
-        preprocessing_files_data[13] + # preprocessing_files_data[13] +
-        preprocessing_files_data[15], # + preprocessing_files_data[15],
+        [preprocessing_files_data[0]], # + # preprocessing_files_data[1] +
+#         preprocessing_files_data[3] + # preprocessing_files_data[3] +
+#         preprocessing_files_data[5] + # preprocessing_files_data[5] +
+#         preprocessing_files_data[7] + # preprocessing_files_data[7] +
+#         preprocessing_files_data[9] + # preprocessing_files_data[9] +
+#         preprocessing_files_data[11] + # preprocessing_files_data[11] +
+#         preprocessing_files_data[13] + # preprocessing_files_data[13] +
+#         preprocessing_files_data[15], # + preprocessing_files_data[15],
         simil_method=cosine,
         n_dim=3,
         xlabel='Dimensiunea1',
         ylabel='Dimensiunea2',
         zlabel='Dimnesiunea3',
         title='Reprezentarea toate etajele',
-        file_name='images/raport-2/md_ordered_floors.png',
+        file_name='images/raport-2/md_ordered_floors_scale.png',
         selection='All',  # Comm
         add_label=True,
         plot_slope=False,
         print_angle=False,
         check_one=False,
         type_data='wifi',
-        n_clusters=8
+        n_clusters=1
     )
 
     # plot_similarity_between_points(
