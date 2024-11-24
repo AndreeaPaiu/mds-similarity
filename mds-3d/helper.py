@@ -4,7 +4,6 @@ from datetime import datetime
 from scipy.spatial.distance import cosine
 from compare_locations import compare_locations
 
-
 import math
 import numpy as np
 from matplotlib import pyplot as plt
@@ -42,9 +41,12 @@ def show_data(collections_data, type_data='cartesian', type_plot='mds', dimensio
 def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=3, simil_method=cosine, selection='All'):
     if type_plot == 'mds':
         similarities = compute_similarities(data, type_data, dimension, simil_method, selection)
-        mds = MDS(n_components=dimension, dissimilarity='precomputed')
+        mds = MDS(n_components=dimension, dissimilarity='precomputed', normalized_stress="auto")
         coordinates = mds.fit_transform(similarities)
-
+#
+        print(f'Stress_value = {mds.stress_}')
+        print(f'n_iter = {mds.n_iter_}')
+#         print(f'params = {mds.get_metadata_routing()}')
         new_coords = []
 
         if dimension == 3:
@@ -91,11 +93,12 @@ def compute_wifi_similarities(data, simil_method, selection):
     similarities = np.empty((len(data), len(data)))
     ones = {}
     nr_ones = 0
+    # TODO  sa fac completez jumatate de matrice
     for i, i_key in enumerate(data):
         for j, j_key in enumerate(data):
             similarities[i][j] = compare_locations(data[i_key], data[j_key], simil_method, selection)
             if similarities[i][j] == 1:
-                similarities[i][j] = 0
+#                 similarities[i][j] = 0
                 nr_ones += 1
                 if i_key + ' ' + j_key not in ones:
                     ones[i_key + ' ' + j_key] = 0
