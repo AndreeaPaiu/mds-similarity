@@ -21,6 +21,7 @@ def show_stress_histogram(collection1, type_data='wifi', path='images/raport3/te
     dist_array = dist.ravel()
     similarities_array = similarities.ravel()
     stresses = []
+    fig = plt.figure()
     for i, key in enumerate(dist_array):
         stresses.append(abs(dist_array[i] - similarities_array[i]))
 
@@ -31,6 +32,7 @@ def show_stress_histogram(collection1, type_data='wifi', path='images/raport3/te
     plt.title(title)
 
     plt.show()
+    fig.savefig(path, bbox_inches='tight')
 
 def compute_cartesian_distance(data, dimension):
     distances = np.empty((len(data), len(data)))
@@ -47,16 +49,18 @@ def compute_cartesian_distance(data, dimension):
 def show_similarities_histogram(collection1, collection2, type_data='wifi', path='images/raport3/test.png', title='Test', xlabel='x', ylabel='y', simil_method='', selection='All'):
     similarities = compute_similarities_between_two_collections(collection1, collection2, type_data, simil_method, selection)
 
+    fig = plt.figure()
+
     if type_data == 'wifi':
         sns.histplot(similarities, bins=100, kde=True, color='skyblue', binrange=(0,1))
     elif type_data == 'cartesian':
         sns.histplot(similarities, bins=100, kde=True, color='skyblue')
-
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
 
     plt.show()
+    fig.savefig(path, bbox_inches='tight')
 
 def compute_similarities_between_two_collections(collection1, collection2, type_data, simil_method, selection):
     if type_data == 'cartesian':

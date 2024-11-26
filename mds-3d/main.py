@@ -206,22 +206,22 @@ if __name__ == '__main__':
 #         )
 #
 #        2 etaje din 1 in 1
-#     type_data = 'wifi'
-#     for i in range(len(data)):
-#         if i == (len(data) - 1):
-#             break
-#
-#         show_similarities_histogram(
-#             data[i],
-#             data[i+1],
-#             type_data=type_data,
-#             path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+1}.png',
-#             title=f'Similarities {type_data} points floor{i} and floor{i+1}',
-#             xlabel='Values',
-#             ylabel='Density',
-#             simil_method=cosine,
-#             selection='All'
-#         )
+    type_data = 'wifi'
+    for i in range(len(data)):
+        if i == (len(data) - 1):
+            break
+
+        show_similarities_histogram(
+            data[i],
+            data[i+1],
+            type_data=type_data,
+            path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+1}.png',
+            title=f'Similarities {type_data} points floor{i} and floor{i+1}',
+            xlabel='Values',
+            ylabel='Density',
+            simil_method=cosine,
+            selection='All'
+        )
 
 #       2 etaje din 1 in 1
 #     type_data = 'cartesian'
@@ -240,42 +240,42 @@ if __name__ == '__main__':
 #             simil_method=cosine,
 #             selection='All'
 #         )
-#
-# #     2 etaje din 2 in 2
-#     type_data = 'wifi'
-#     for i in range(len(data)):
-#         if i == (len(data) - 2):
-#             break
-#
-#         show_similarities_histogram(
-#             data[i],
-#             data[i+2],
-#             type_data=type_data,
-#             path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+2}.png',
-#             title=f'Similarities {type_data} points floor{i} and floor{i+2}',
-#             xlabel='Values',
-#             ylabel='Density',
-#             simil_method=cosine,
-#             selection='All'
-#         )
-#
-# #   2 etaje din 2 in 2
-#     type_data = 'cartesian'
-#     for i in range(len(data)):
-#         if i == (len(data) - 2):
-#             break
-#
-#         show_similarities_histogram(
-#             data[i],
-#             data[i+2],
-#             type_data=type_data,
-#             path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+2}.png',
-#             title=f'Similarities {type_data} points floor{i} and floor{i+2}',
-#             xlabel='Values',
-#             ylabel='Density',
-#             simil_method=cosine,
-#             selection='All'
-#         )
+
+#     2 etaje din 2 in 2
+    type_data = 'wifi'
+    for i in range(len(data)):
+        if i == (len(data) - 2):
+            break
+
+        show_similarities_histogram(
+            data[i],
+            data[i+2],
+            type_data=type_data,
+            path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+2}.png',
+            title=f'Similarities {type_data} points floor{i} and floor{i+2}',
+            xlabel='Values',
+            ylabel='Density',
+            simil_method=cosine,
+            selection='All'
+        )
+
+#   2 etaje din 2 in 2
+    type_data = 'cartesian'
+    for i in range(len(data)):
+        if i == (len(data) - 2):
+            break
+
+        show_similarities_histogram(
+            data[i],
+            data[i+2],
+            type_data=type_data,
+            path=f'images/raport3/histogram-similarities-{type_data}-points-floor{i}-floor{i+2}.png',
+            title=f'Similarities {type_data} points floor{i} and floor{i+2}',
+            xlabel='Values',
+            ylabel='Density',
+            simil_method=cosine,
+            selection='All'
+        )
 
 
     type_data = 'wifi'
