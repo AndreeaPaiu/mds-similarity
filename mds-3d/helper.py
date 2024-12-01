@@ -41,7 +41,7 @@ def show_data(collections_data, type_data='cartesian', type_plot='mds', dimensio
 def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=3, simil_method=cosine, selection='All'):
     if type_plot == 'mds':
         similarities = compute_similarities(data, type_data, dimension, simil_method, selection)
-        mds = MDS(n_components=dimension, dissimilarity='precomputed', normalized_stress="auto")
+        mds = MDS(n_components=dimension, dissimilarity='precomputed', normalized_stress=False, eps=0.001)
         coordinates = mds.fit_transform(similarities)
 #
         print(f'Stress_value = {mds.stress_}')
@@ -104,8 +104,8 @@ def compute_wifi_similarities(data, simil_method, selection):
                     ones[i_key + ' ' + j_key] = 0
                 ones[i_key + ' ' + j_key] += 1
 
-    print(nr_ones)
-    print(ones)
+    print(f'number of ones: {nr_ones}')
+    print(f'Ones pairs: {ones}')
     return similarities
 
 def plot_data(data, coordinates, dimension, path, title, xlabel, ylabel, zlabel, nr_clusters):
