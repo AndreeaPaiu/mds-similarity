@@ -30,8 +30,11 @@ def show_stress_histogram(collection1, type_data='wifi', path='images/raport3/te
 
     # show diff stresses
     print(f'Difference between point -> standard deviation: {statistics.stdev(diff_between_points)}' )
+    print(f'Difference Stress on one pair: {diff_between_points.sum() / len(dist.ravel()) }')
     print(path)
     show_histogram(diff_between_points, 'diff ' + title, path + '_ diff' + extension, xlabel, ylabel)
+
+
 
     # show smacof example stress
     print(f'Smacof example stress -> standard deviation: {statistics.stdev(stresses)}' )

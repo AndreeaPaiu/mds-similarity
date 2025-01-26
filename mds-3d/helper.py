@@ -33,17 +33,26 @@ def get_wifi_rssi(collections):
         wifi_rssi[collection_key] = collections[collection_key]['wifi']
     return wifi_rssi
 
-def show_data(collections_data, type_data='cartesian', type_plot='mds', dimension=3, path=f'images/raport3/{datetime.now()}.png', title='test', xlabel='x', ylabel='y', zlabel='z', simil_method=cosine, selection='All', nr_clusters=2):
+def show_data(collections_data, type_data='cartesian', type_plot='mds', dimension=3, path=f'images/raport3/{datetime.now()}.png', title='test', xlabel='x', ylabel='y', zlabel='z', simil_method=cosine, selection='All', nr_clusters=2, mds_type=MDS, with_init_array=False):
     data = get_collection_components(collections_data, type_data)
-    data_coordinates = compute_coordinates(data, type_data, type_plot, dimension, simil_method, selection)
+    cartesian_data = get_collection_components(collections_data, 'cartesian')
+    new_cartesian = []
+    for i, key in enumerate(cartesian_data):
+        new_cartesian.append([
+                cartesian_data[key][0],
+                cartesian_data[key][1],
+                cartesian_data[key][2],
+            ])
+    new_cartesian = np.array(new_cartesian)
+    data_coordinates = compute_coordinates(data, type_data, type_plot, dimension, simil_method, selection, mds_type, new_cartesian)
     plot_data(data, data_coordinates, dimension, path, title, xlabel, ylabel, zlabel, nr_clusters)
 
-def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=3, simil_method=cosine, selection='All'):
+def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=3, simil_method=cosine, selection='All', mds_type=MDS, cartesian_data=[]):
     if type_plot == 'mds':
-        similarities = compute_similarities(data, type_data, dimension, simil_method, selection)
-        mds = MDS(n_components=dimension, dissimilarity='precomputed', normalized_stress=False, eps=0.001)
-        coordinates = mds.fit_transform(similarities)
-#
+        print(dimension)
+        similarities, W = compute_similarities(data, type_data, dimension, simil_method, selection)
+        mds = mds_type(n_components=dimension, dissimilarity='precomputed', n_jobs=-1)
+        coordinates = mds.fit_transform(similarities, init=cartesian_data, weights=W)
         print(f'Stress_value = {mds.stress_}')
         print(f'n_iter = {mds.n_iter_}')
 #         print(f'params = {mds.get_metadata_routing()}')
@@ -94,10 +103,13 @@ def compute_wifi_similarities(data, simil_method, selection):
     ones = {}
     nr_ones = 0
     # TODO  sa fac completez jumatate de matrice
+    W = np.empty((len(data), len(data)))
     for i, i_key in enumerate(data):
         for j, j_key in enumerate(data):
             similarities[i][j] = compare_locations(data[i_key], data[j_key], simil_method, selection)
+            W[i][j] = 1
             if similarities[i][j] == 1:
+                W[i][j] = 0
 #                 similarities[i][j] = 0
                 nr_ones += 1
                 if i_key + ' ' + j_key not in ones:
@@ -106,7 +118,7 @@ def compute_wifi_similarities(data, simil_method, selection):
 
     print(f'number of ones: {nr_ones}')
     print(f'Ones pairs: {ones}')
-    return similarities
+    return similarities , W
 
 def plot_data(data, coordinates, dimension, path, title, xlabel, ylabel, zlabel, nr_clusters):
     fig = plt.figure()
@@ -146,3 +158,5 @@ def plot_data(data, coordinates, dimension, path, title, xlabel, ylabel, zlabel,
     plt.show()
     fig.savefig(path, bbox_inches='tight')
 
+def select_second_character(word):
+    return word[len(word)-1:]
