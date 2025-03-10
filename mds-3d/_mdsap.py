@@ -30,7 +30,8 @@ def _smacof_single(
     eps=1e-3,
     random_state=None,
     normalized_stress=False,
-    weights=None
+    weights=None,
+    random_limit_points=None
 ):
     """Computes multidimensional scaling using SMACOF algorithm.
 
@@ -111,7 +112,6 @@ def _smacof_single(
     sim_flat = ((1 - np.tri(n_samples)) * dissimilarities).ravel()
     sim_flat_w = sim_flat[sim_flat != 0]
 
-    print(weights)
     if weights is None:
         weights = np.ones(shape=(n_samples, n_samples), dtype=float)
         weights[np.isnan(dissimilarities)] = 0.0
@@ -131,9 +131,11 @@ def _smacof_single(
         # overrides the parameter p
         n_components = init.shape[1]
         if n_samples != init.shape[0]:
-            ceva = random_state.uniform(low=0, high=100,size=(n_samples - init.shape[0]) * n_components)
-            ceva = ceva.reshape(((n_samples - init.shape[0]), n_components))
-            X = np.concatenate((init, ceva), axis = 0)
+
+            random_x = random_state.uniform(low=random_limit_points[0][0], high=random_limit_points[0][1], size=(n_samples - init.shape[0]))
+            random_y = random_state.uniform(low=random_limit_points[1][0], high=random_limit_points[1][1], size=(n_samples - init.shape[0]))
+            random_points = np.vstack((random_x, random_y)).T
+            X = np.concatenate((init, random_points), axis = 0)
 #             raise ValueError(
 #                 "init matrix should be of shape (%d, %d)" % (n_samples, n_components)
 #             )
@@ -157,6 +159,8 @@ def _smacof_single(
 #         X = 1.0 / n_samples * np.dot(B, X) # inmulteste B cu X
         X = V_p @ np.nan_to_num(B) @ np.nan_to_num(X)
 
+        # if init is not None:
+        #     X = np.concatenate((init, X[init.shape[0]:]), axis=0)
 
         dis = np.sqrt((X**2).sum(axis=1)).sum()
         if verbose >= 2:
@@ -202,7 +206,8 @@ def smacof(
     random_state=None,
     return_n_iter=False,
     normalized_stress="auto",
-    weights=None
+    weights=None,
+    random_limit_points=None
 ):
     """Compute multidimensional scaling using the SMACOF algorithm.
 
@@ -364,7 +369,8 @@ def smacof(
                 eps=eps,
                 random_state=random_state,
                 normalized_stress=normalized_stress,
-                weights=weights
+                weights=weights,
+                random_limit_points=random_limit_points
             )
             if best_stress is None or stress < best_stress:
                 best_stress = stress
@@ -383,7 +389,8 @@ def smacof(
                 eps=eps,
                 random_state=seed,
                 normalized_stress=normalized_stress,
-                weights=weights
+                weights=weights,
+                random_limit_points=random_limit_points
             )
             for seed in seeds
         )
@@ -564,6 +571,7 @@ class MDSAP(BaseEstimator):
         random_state=None,
         dissimilarity="euclidean",
         normalized_stress="auto",
+        random_limit_points=[[-1, 1],[-1, 1]]   # ca sa nu ii schimbe comportamentul default
     ):
         self.n_components = n_components
         self.dissimilarity = dissimilarity
@@ -575,6 +583,7 @@ class MDSAP(BaseEstimator):
         self.n_jobs = n_jobs
         self.random_state = random_state
         self.normalized_stress = normalized_stress
+        self.random_limit_points = random_limit_points
 
     def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()
@@ -660,7 +669,8 @@ class MDSAP(BaseEstimator):
             random_state=self.random_state,
             return_n_iter=True,
             normalized_stress=self.normalized_stress,
-            weights=weights
+            weights=weights,
+            random_limit_points = self.random_limit_points
         )
 
         return self.embedding_

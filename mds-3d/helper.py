@@ -52,7 +52,9 @@ def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=
         print(dimension)
         similarities, W = compute_similarities(data, type_data, dimension, simil_method, selection)
         mds = mds_type(n_components=dimension, dissimilarity='precomputed', n_jobs=-1)
-        coordinates = mds.fit_transform(similarities, init=cartesian_data, weights=W)
+        # coordinates = mds.fit_transform(similarities, init=cartesian_data, weights=W)
+        coordinates = mds.fit_transform(similarities, weights=W)
+        # coordinates = mds.fit_transform(similarities)
         print(f'Stress_value = {mds.stress_}')
         print(f'n_iter = {mds.n_iter_}')
 #         print(f'params = {mds.get_metadata_routing()}')
@@ -115,6 +117,8 @@ def compute_wifi_similarities(data, simil_method, selection):
                 if i_key + ' ' + j_key not in ones:
                     ones[i_key + ' ' + j_key] = 0
                 ones[i_key + ' ' + j_key] += 1
+            if i == j:
+                W[i][j] = 0
 
     print(f'number of ones: {nr_ones}')
     print(f'Ones pairs: {ones}')
@@ -125,7 +129,6 @@ def plot_data(data, coordinates, dimension, path, title, xlabel, ylabel, zlabel,
     plt.axis('equal')
     if dimension == 3:
         ax = fig.add_subplot(111, projection='3d')
-
     if dimension == 2:
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
@@ -135,22 +138,23 @@ def plot_data(data, coordinates, dimension, path, title, xlabel, ylabel, zlabel,
         for i, (x, y, nr_file, nr_ctr) in enumerate(coordinates):
             plt.text(x + .03, y + .03, nr_ctr, fontsize=9)
 
+    floor_set = {}
     if dimension == 3:
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_zlabel(zlabel)
 
         for i, (x, y, z, nr_file, nr_ctr) in enumerate(coordinates):
-            ax.scatter(x, y, z, color=colors[int(int(nr_file) % nr_clusters)], label=f'floor {int(nr_file) % nr_clusters}')
-
-        for i, (x, y, z, nr_file, nr_ctr) in enumerate(coordinates):
-            ax.text(x + .03, y + .03, z + .03, nr_ctr, fontsize=9)
+            ax.scatter(x, y, z, color=colors[int(nr_file)], label=f'floor {nr_file}')
+            ax.text(x + .03, y + .03, z + .03, nr_ctr.replace('n', ''), fontsize=9)
+            floor_set[nr_file] = colors[int(nr_file)]
 
     plt.title(title)
 
+
     handles = []
-    for i in range(0, nr_clusters):
-        handles.append(matplotlib.patches.Patch(color=colors[int(i)], label=f'fisier{int(i)}'))
+    for (nr_file, color) in enumerate(floor_set):
+        handles.append(matplotlib.patches.Patch(color=colors[int(color)], label=f'floor{int(color)}'))
 
     plt.legend(handles=handles)
 
