@@ -524,58 +524,78 @@ if __name__ == '__main__':
 #         mds_type = MDSAP
 #     )
 #
+    # type_data = 'wifi'
+    # type_plot = 'mds'
+    # dimension = 2
+    # for i in range(len(data)):
+    #     show_data(
+    #         data[i],
+    #         type_data=type_data,
+    #         type_plot=type_plot,
+    #         dimension=dimension,
+    #         path=f'images/raport3/{type_plot}-{dimension}D-{type_data}-points-floor{i}-with-init-array.png',
+    #         title=f'{type_plot} {dimension}D {type_data} points floor{i} with init array',
+    #         xlabel='x',
+    #         ylabel='y',
+    #         zlabel='z',
+    #         simil_method=cosine,
+    #         selection='All',
+    #         nr_clusters = 2,
+    #         mds_type = MDSAP
+    #     )
+#
 #     type_data = 'wifi'
 #     type_plot = 'mds'
-#     dimension = 2
-#     for i in range(len(data)):
+#     dimension = 3
+#     # 2 floors
+#
+#     for i in range(len(data)-3):
+#         if i == (len(data)):
+#             break
+#
+#         data_s = {}
+#         data_s.update(data[i])
+#         data_s.update(data[i+1])
+#         data_s.update(data[i+2])
+#         print(data_s)
+#         ceva =  sorted(data_s, key=select_second_character)
+#         data_ss = {}
+#         for iter in ceva:
+#             data_ss[iter] = data_s[iter]
+#         print(data_ss)
 #         show_data(
-#             data[i],
+#             data_s,
 #             type_data=type_data,
 #             type_plot=type_plot,
 #             dimension=dimension,
-#             path=f'images/raport3/{type_plot}-{dimension}D-{type_data}-points-floor{i}-with-init-array.png',
-#             title=f'{type_plot} {dimension}D {type_data} points floor{i} with init array',
+#             path=f'images/raport3/{type_plot}-{dimension}D-{type_data}-points-floor{i}-floor{i+1}.png',
+#             title=f'{type_plot} {dimension}D {type_data} points floor{i} and floor{i+1}',
 #             xlabel='x',
 #             ylabel='y',
 #             zlabel='z',
 #             simil_method=cosine,
 #             selection='All',
 #             nr_clusters = 2,
-#             mds_type = MDSAP
+#             mds_type = MDSAP,
+#             with_init_array=True
 #         )
 
     type_data = 'wifi'
-    type_plot = 'mds'
-    dimension = 3
-    # 2 floors
-
-    for i in range(len(data)-3):
-        if i == (len(data)):
-            break
-
-        data_s = {}
-        data_s.update(data[i])
-        data_s.update(data[i+1])
-        data_s.update(data[i+2])
-        print(data_s)
-        ceva =  sorted(data_s, key=select_second_character)
-        data_ss = {}
-        for iter in ceva:
-            data_ss[iter] = data_s[iter]
-        print(data_ss)
+    type_plot = 'lmbfgs'
+    dimension = 2
+    for i in range(len(data)):
         show_data(
-            data_s,
+            data[i],
             type_data=type_data,
             type_plot=type_plot,
             dimension=dimension,
-            path=f'images/raport3/{type_plot}-{dimension}D-{type_data}-points-floor{i}-floor{i+1}.png',
-            title=f'{type_plot} {dimension}D {type_data} points floor{i} and floor{i+1}',
+            path=f'images/raport3/{type_plot}-{dimension}D-{type_data}-points-floor{i}-with-init-array.png',
+            title=f'{type_plot} {dimension}D {type_data} points floor{i} with init array',
             xlabel='x',
             ylabel='y',
             zlabel='z',
             simil_method=cosine,
             selection='All',
             nr_clusters = 2,
-            mds_type = MDSAP,
-            with_init_array=True
+            mds_type = type_plot
         )

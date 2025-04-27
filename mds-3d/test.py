@@ -5,6 +5,25 @@ from _mdsap import *
 from sklearn.metrics import euclidean_distances
 import matplotlib.patches as mpatches
 import pandas as pd
+from lmbfgs import *
+
+
+
+# Create your data and dissimilarities
+data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5], [1, 1]])
+D = euclidean_distances(data)
+
+# Known points
+known = np.array([
+
+])
+
+# Instantiate and reconstruct
+reconstructor = PointReconstructor(D, known)
+reconstructor.reconstruct()
+print("Final stress:", reconstructor.stress_value())
+reconstructor.plot()
+exit()
 
 
 def center_matrix(points, init_points, axis=0):
@@ -40,7 +59,7 @@ init_config = np.array([[8, 5], [0, 10], [-8, 5]]) # hexagon
 # init_config = None
 
 
-data, init_config = center_matrix(data, init_config, 0)
+# data, init_config = center_matrix(data, init_config, 0)
 limit_points = get_limits(init_config)
 dist_init_config = euclidean_distances(init_config)
 

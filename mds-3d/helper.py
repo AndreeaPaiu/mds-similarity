@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 from datetime import datetime
 from scipy.spatial.distance import cosine
 from compare_locations import compare_locations
+from lmbfgs import *
 
 import math
 import numpy as np
@@ -37,48 +38,57 @@ def show_data(collections_data, type_data='cartesian', type_plot='mds', dimensio
     data = get_collection_components(collections_data, type_data)
     cartesian_data = get_collection_components(collections_data, 'cartesian')
     new_cartesian = []
+
     for i, key in enumerate(cartesian_data):
         new_cartesian.append([
                 cartesian_data[key][0],
                 cartesian_data[key][1],
                 cartesian_data[key][2],
             ])
+
     new_cartesian = np.array(new_cartesian)
     data_coordinates = compute_coordinates(data, type_data, type_plot, dimension, simil_method, selection, mds_type, new_cartesian)
     plot_data(data, data_coordinates, dimension, path, title, xlabel, ylabel, zlabel, nr_clusters)
 
 def compute_coordinates(data, type_data='cartesian', type_plot='mds', dimension=3, simil_method=cosine, selection='All', mds_type=MDS, cartesian_data=[]):
+    similarities, W = compute_similarities(data, type_data, dimension, simil_method, selection)
+    print([cartesian_data[0][0:2], cartesian_data[1][0:2], cartesian_data[2][0:2]])
     if type_plot == 'mds':
-        print(dimension)
-        similarities, W = compute_similarities(data, type_data, dimension, simil_method, selection)
         mds = mds_type(n_components=dimension, dissimilarity='precomputed', n_jobs=-1)
         # coordinates = mds.fit_transform(similarities, init=cartesian_data, weights=W)
         coordinates = mds.fit_transform(similarities, weights=W)
         # coordinates = mds.fit_transform(similarities)
-        print(f'Stress_value = {mds.stress_}')
-        print(f'n_iter = {mds.n_iter_}')
 #         print(f'params = {mds.get_metadata_routing()}')
-        new_coords = []
+    elif type_plot == 'lmbfgs':
+        reconstructor = PointReconstructor(similarities, np.array([cartesian_data[0][0:2], cartesian_data[1][0:2], cartesian_data[2][0:2]]))
+        reconstructor.reconstruct()
+        print("Final stress:", reconstructor.stress_value())
+        # reconstructor.plot()
+        coordinates = reconstructor.all_points()
 
-        if dimension == 3:
-            for i, collection in enumerate(data):
-                new_coords.append([
-                coordinates[i][0],
-                coordinates[i][1],
-                coordinates[i][2],
-                collection[0],
-                collection[len(collection)-2:]
-            ])
+    new_coords = []
 
-        if dimension == 2:
-            for i, collection in enumerate(data):
-                new_coords.append([
-                coordinates[i][0],
-                coordinates[i][1],
-                collection[0],
-                collection[len(collection)-2:]
-            ])
-        return new_coords
+    if dimension == 3:
+        for i, collection in enumerate(data):
+            new_coords.append([
+            coordinates[i][0],
+            coordinates[i][1],
+            coordinates[i][2],
+            collection[0],
+            collection[len(collection)-2:]
+        ])
+
+    if dimension == 2:
+        for i, collection in enumerate(data):
+            new_coords.append([
+            coordinates[i][0],
+            coordinates[i][1],
+            collection[0],
+            collection[len(collection)-2:]
+        ])
+    return new_coords
+
+
 
 
 def compute_similarities(data, type_data, dimension, simil_method, selection):
