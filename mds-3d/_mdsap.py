@@ -113,13 +113,16 @@ def _smacof_single(
     sim_flat_w = sim_flat[sim_flat != 0]
 
     if weights is None:
-        weights = np.ones(shape=(n_samples, n_samples), dtype=float)
-        weights[np.isnan(dissimilarities)] = 0.0
-        weights[np.diag_indices_from(weights)] = 1.0 #just ensure that we have ones on diagonal
+        weights = np.ones((n_samples, n_samples)) - np.eye(n_samples)   # symetric, non-negative, hollow, irreductible
 
-
-    V = -weights
-    V[np.diag_indices_from(V)] = np.sum(weights, 1) - weights[np.diag_indices_from(weights)]
+    # Past_Present_and_Future_of_Multidimensio
+    # the offdiagonal elements of  V are equal to −wij and the diagonal elements contain the row sums of matrix W
+    V = np.diag(weights.sum(axis=1)) - weights      # ecuatia 6
+    # print(V)
+    # v = np.sum(weights, axis=1)
+    # V = np.diag(v)
+    # print(V)
+    # exit()
 
     V_p = np.linalg.pinv(V)
 
@@ -146,19 +149,23 @@ def _smacof_single(
     ir = IsotonicRegression()
     for it in range(max_iter):
         # Compute distance and monotonic regression
-        dis = euclidean_distances(X)
+        dis = euclidean_distances(X)        # ecuatia 3
         disparities = dissimilarities
         # Compute stress
-        stress = np.nansum(weights.ravel() * ((dis.ravel() - dissimilarities.ravel()) ** 2)) / 2
+        stress = np.nansum(weights.ravel() * ((dis.ravel() - dissimilarities.ravel()) ** 2))    # ecuatia 4
 
         # Update X using the Guttman transform
-        dis[dis == 0] = 1e-5        # daca e lasat 0 pica
-        ratio = disparities / dis
-        B = -ratio
-        B[np.arange(len(B)), np.arange(len(B))] += ratio.sum(axis=1) # adauga suma erorilor pe diagonala principala
-#         X = 1.0 / n_samples * np.dot(B, X) # inmulteste B cu X
-        X = V_p @ np.nan_to_num(B) @ np.nan_to_num(X)
+        dis[dis == 0] = 1e-15        # daca e lasat 0 pica
+        ratio = disparities / dis       # s_ij
+        # B = -ratio
+        # B[np.arange(len(B)), np.arange(len(B))] += ratio.sum(axis=1) # adauga suma erorilor pe diagonala principala
+        # print(B)
+        # 4. Compute B = diag(sum_j w_ij S_ij) - (W * S) elementwise:
+        weights_times_S = weights * ratio  # elementwise product     ecuatia 8
+        B = np.diag(weights_times_S.sum(axis=1)) - weights_times_S      # ecuatia 8
 
+#         X = 1.0 / n_samples * np.dot(B, X) # inmulteste B cu X
+        X = V_p @ np.nan_to_num(B) @ np.nan_to_num(X)       # ecuatia 14
         # if init is not None:
         #     X = np.concatenate((init, X[init.shape[0]:]), axis=0)
 

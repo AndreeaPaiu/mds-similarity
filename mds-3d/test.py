@@ -5,101 +5,101 @@ from _mdsap import *
 from sklearn.metrics import euclidean_distances
 import matplotlib.patches as mpatches
 import pandas as pd
-from lmbfgs import *
-
+# from lmbfgs import *
 #
-# import numpy as np
-# from sklearn.metrics import euclidean_distances
-# from test_lmbfgs import PointReconstructor
-
-# ── 1) WITHOUT any initial normalized embedding ──
+# #
+# # import numpy as np
+# # from sklearn.metrics import euclidean_distances
+# # from test_lmbfgs import PointReconstructor
 #
-# # Suppose these are your 7 points (only for building D)
-# true_data = np.array([
-#     [ 8,  5],
-#     [ 0, 10],
-#     [-8,  5],
-#     [-8, -5],
-#     [ 0, -10],
-#     [ 8, -5],
-#     [ 1,   1],
-# ])
+# # ── 1) WITHOUT any initial normalized embedding ──
+# #
+# # # Suppose these are your 7 points (only for building D)
+# # true_data = np.array([
+# #     [ 8,  5],
+# #     [ 0, 10],
+# #     [-8,  5],
+# #     [-8, -5],
+# #     [ 0, -10],
+# #     [ 8, -5],
+# #     [ 1,   1],
+# # ])
+# # # data = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7]])
+# #
+# # D = euclidean_distances(true_data)
+# #
+# # # Known points are the first 3
+# # known = true_data[:3]
+# #
+# # # Instantiate and reconstruct
+# # recon = PointReconstructor(D, known)
+# # estimated = recon.reconstruct()
+# #
+# # print("Estimated (without init_embeddings):")
+# # print(estimated)
+# # print("Final stress:", recon.stress_value())
+# #
+# # # Plot all
+# # recon.plot()
+# # exit()
+# #
+# # # ── 2) WITH a provided initial normalized embedding ──
+# #
+# # # Say you already have a “unit” embedding of all 7 points in some normalized space:
+# # init_embed = np.array([
+# #     [ 0.8,  0.5],
+# #     [ 0.0,  1.0],
+# #     [-0.8,  0.5],
+# #     [-0.9, -0.4],
+# #     [ 0.0, -1.0],
+# #     [ 0.9, -0.4],
+# #     [ 0.1,  0.0],
+# # ])
+# #
+# # # Now pass it in:
+# # recon2 = PointReconstructor(D, known, init_embeddings=init_embed)
+# # est2 = recon2.reconstruct()
+# #
+# # print("Estimated (with init_embeddings):")
+# # print(est2)
+# # print("Final stress:", recon2.stress_value())
+# # recon2.plot()
+# # exit()
+#
+#
+# #
+# # Create your data and dissimilarities
+# data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5], [1, 1]])
 # # data = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7]])
+# D = euclidean_distances(data)
+# # print(D)
 #
-# D = euclidean_distances(true_data)
-#
-# # Known points are the first 3
-# known = true_data[:3]
+# # Known points
+# known = np.array([
+# [8, 5], [0, 10], [-8, 5]
+# ])
+# # known = np.array([
+# #
+# # ])
 #
 # # Instantiate and reconstruct
-# recon = PointReconstructor(D, known)
-# estimated = recon.reconstruct()
-#
-# print("Estimated (without init_embeddings):")
-# print(estimated)
-# print("Final stress:", recon.stress_value())
-#
-# # Plot all
-# recon.plot()
+# reconstructor = PointReconstructor(D, known)
+# reconstructor.reconstruct()
+# print("Final stress:", reconstructor.stress_value())
+# reconstructor.plot()
 # exit()
 #
-# # ── 2) WITH a provided initial normalized embedding ──
 #
-# # Say you already have a “unit” embedding of all 7 points in some normalized space:
-# init_embed = np.array([
-#     [ 0.8,  0.5],
-#     [ 0.0,  1.0],
-#     [-0.8,  0.5],
-#     [-0.9, -0.4],
-#     [ 0.0, -1.0],
-#     [ 0.9, -0.4],
-#     [ 0.1,  0.0],
-# ])
+# def center_matrix(points, init_points, axis=0):
+#     points = points.astype(float)
+#     init_points = init_points.astype(float)
+#     meanPoint = np.mean(points, axis=0)
+#     points -= meanPoint
+#     meanPoint = np.mean(init_points, axis=0)
+#     init_points -= meanPoint
 #
-# # Now pass it in:
-# recon2 = PointReconstructor(D, known, init_embeddings=init_embed)
-# est2 = recon2.reconstruct()
+#     return points, init_points
 #
-# print("Estimated (with init_embeddings):")
-# print(est2)
-# print("Final stress:", recon2.stress_value())
-# recon2.plot()
-# exit()
-
-
-#
-# Create your data and dissimilarities
-data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5], [1, 1]])
-# data = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7]])
-D = euclidean_distances(data)
-# print(D)
-
-# Known points
-known = np.array([
-[8, 5], [0, 10], [-8, 5]
-])
-# known = np.array([
-#
-# ])
-
-# Instantiate and reconstruct
-reconstructor = PointReconstructor(D, known)
-reconstructor.reconstruct()
-print("Final stress:", reconstructor.stress_value())
-reconstructor.plot()
-exit()
-
-
-def center_matrix(points, init_points, axis=0):
-    points = points.astype(float)
-    init_points = init_points.astype(float)
-    meanPoint = np.mean(points, axis=0)
-    points -= meanPoint
-    meanPoint = np.mean(init_points, axis=0)
-    init_points -= meanPoint
-
-    return points, init_points
-
 def get_limits(points, addition=0):
     df = pd.DataFrame(points)
 
@@ -108,7 +108,7 @@ def get_limits(points, addition=0):
 # data = [[0.0, 0.0], [0.1, 0.1], [0.2, 0.3], [0.4,0.7]]
 # data = np.array([[0, 0], [3, 3], [2, 2], [1, 1]]) # linie
 # data = np.array([[0,0], [0, 2], [2,2], [2,0]]) # patrat
-data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5]]) # hexagon
+data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5], [1, 1]]) # hexagon
 # data = np.array([[8, 5], [0, 10], [2, 3], [1, -4], [-2, -10], [-7, -4]]) # random
 # data = np.array([[0,0], [0, 2], [2,2], [2,0], [-1,-1],[-1,3], [3,3], [3, -1]]) # 2 patrat
 
@@ -151,7 +151,6 @@ transformed_data = mds.fit_transform(data, init=init_config)
 # transformed_data = mds.fit_transform(transformed_data, init=init_config)
 
 
-print(transformed_data)
 fig = plt.figure()
 plt.axis('equal')
 _, ax = plt.subplots()
