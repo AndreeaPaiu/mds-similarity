@@ -7,16 +7,80 @@ import matplotlib.patches as mpatches
 import pandas as pd
 from lmbfgs import *
 
+#
+# import numpy as np
+# from sklearn.metrics import euclidean_distances
+# from test_lmbfgs import PointReconstructor
+
+# ── 1) WITHOUT any initial normalized embedding ──
+#
+# # Suppose these are your 7 points (only for building D)
+# true_data = np.array([
+#     [ 8,  5],
+#     [ 0, 10],
+#     [-8,  5],
+#     [-8, -5],
+#     [ 0, -10],
+#     [ 8, -5],
+#     [ 1,   1],
+# ])
+# # data = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7]])
+#
+# D = euclidean_distances(true_data)
+#
+# # Known points are the first 3
+# known = true_data[:3]
+#
+# # Instantiate and reconstruct
+# recon = PointReconstructor(D, known)
+# estimated = recon.reconstruct()
+#
+# print("Estimated (without init_embeddings):")
+# print(estimated)
+# print("Final stress:", recon.stress_value())
+#
+# # Plot all
+# recon.plot()
+# exit()
+#
+# # ── 2) WITH a provided initial normalized embedding ──
+#
+# # Say you already have a “unit” embedding of all 7 points in some normalized space:
+# init_embed = np.array([
+#     [ 0.8,  0.5],
+#     [ 0.0,  1.0],
+#     [-0.8,  0.5],
+#     [-0.9, -0.4],
+#     [ 0.0, -1.0],
+#     [ 0.9, -0.4],
+#     [ 0.1,  0.0],
+# ])
+#
+# # Now pass it in:
+# recon2 = PointReconstructor(D, known, init_embeddings=init_embed)
+# est2 = recon2.reconstruct()
+#
+# print("Estimated (with init_embeddings):")
+# print(est2)
+# print("Final stress:", recon2.stress_value())
+# recon2.plot()
+# exit()
 
 
+#
 # Create your data and dissimilarities
 data = np.array([[8, 5], [0, 10], [-8, 5], [-8, -5], [0, -10], [8, -5], [1, 1]])
+# data = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7]])
 D = euclidean_distances(data)
+# print(D)
 
 # Known points
 known = np.array([
-
+[8, 5], [0, 10], [-8, 5]
 ])
+# known = np.array([
+#
+# ])
 
 # Instantiate and reconstruct
 reconstructor = PointReconstructor(D, known)

@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
+from sklearn.manifold import MDS
 from sklearn.metrics import euclidean_distances
 from scipy.linalg import orthogonal_procrustes
+from _mdsap import *
 
 class PointReconstructor:
     def __init__(self, D, known, n_components=2, apply_scaling=True):
@@ -57,7 +59,7 @@ class PointReconstructor:
         return alpha
 
     def align_scale(self, X_all):
-        if self.n_known == 0:
+        if self.n_known <= 1:
             return X_all
         X_known = X_all[:self.n_known]
         Y_true = self.known
@@ -70,7 +72,11 @@ class PointReconstructor:
         return (s * Xc.dot(R)) + mu_Y
 
     def get_init_guess(self):
-        embed = self.classical_mds(self.D, n_components=self.n_components)
+        mds = MDSAP(n_components=self.n_components, max_iter=300, eps=1e-6, random_state=2)
+        # w=np.array([[1, 1, 1, 1],[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]])
+        # Fit the model
+        embed = mds.fit_transform(self.D, init=self.known)
+        print(embed)
         aligned = self.align_scale(embed)
         if self.n_known == 0:
             unk = aligned
@@ -95,6 +101,7 @@ class PointReconstructor:
     def all_points(self):
         if self.estimated is None:
             raise ValueError("Call reconstruct() before accessing all_points.")
+        print(np.vstack([self.known, self.estimated]) if self.n_known else self.estimated)
         return np.vstack([self.known, self.estimated]) if self.n_known else self.estimated
 
     def stress_value(self):
@@ -104,6 +111,7 @@ class PointReconstructor:
     def plot(self):
         pts = self.all_points()
         plt.figure(figsize=(8, 6))
+        plt.axis('equal')
         plt.scatter(pts[:,0], pts[:,1], c='blue', label='All Points')
         if self.n_known:
             plt.scatter(self.known[:,0], self.known[:,1], c='red', label='Known Points', zorder=5)
